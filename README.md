@@ -1,50 +1,46 @@
-# Plateforme HCP — Code source
+# HCP Dashboard – Plateforme de tableaux de bord personnalisés
 
-Projet pédagogique Django de gestion et d'analyse de jeux de données, nettoyage, tableaux de bord, administration et assistant IA.
+Ce projet a été réalisé dans le cadre de mon stage au sein de la Direction des Systèmes d'Informations Statistiques (DSIS) du Haut-Commissariat au Plan (HCP).
 
-## Organisation
+Il consiste à développer une application web permettant de gérer, nettoyer et analyser des jeux de données, puis de créer des tableaux de bord personnalisés.
 
-- `accounts/` : utilisateurs et authentification
-- `datasets/` : importation CSV/XLSX, qualité, nettoyage et stockage
-- `dashboards/` : tableaux de bord, widgets et filtres
-- `ai_assistant/` : fonctionnalités d'assistance IA et rapports
-- `audit/` : suivi et journal d'activité
-- `templates/` et `static/` : interface utilisateur
+## Fonctionnalités principales
+
+- Importation de fichiers CSV et Excel
+- Analyse de la qualité des données
+- Nettoyage des données (doublons, valeurs manquantes, etc.)
+- Création de tableaux de bord et de graphiques
+- Gestion des utilisateurs et des permissions
+- Exportation des résultats et des rapports
+- Assistant IA pour l'analyse des données et les recommandations
+
+## Technologies utilisées
+
+- **Backend :** Python, Django
+- **Base de données :** PostgreSQL
+- **Frontend :** HTML, CSS, JavaScript
+- **Traitement des données :** Pandas
+- **Intelligence artificielle :** Ollama
+
+## Structure du projet
+
+- `accounts/` : gestion des utilisateurs
+- `datasets/` : importation et nettoyage des données
+- `dashboards/` : création des tableaux de bord
+- `ai_assistant/` : assistant IA
+- `audit/` : historique des activités
+- `templates/` : pages HTML
+- `static/` : fichiers CSS, JavaScript et images
 - `config/` : configuration Django
-- `requirements.txt` : dépendances Python
 
-## Mise en route locale (Windows / PowerShell)
+## Exécution
 
-Prérequis : Python compatible avec les versions de `requirements.txt`, PostgreSQL configuré, accès aux dépendances pip. Ollama est nécessaire pour certaines fonctions IA et doit disposer du modèle configuré.
+Les dépendances nécessaires sont indiquées dans `requirements.txt`. L'application nécessite une configuration locale de PostgreSQL et des variables d'environnement.
 
-```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-Copy-Item .env.example .env
-```
+Le dépôt contient le code source du projet. La démonstration de l'application est réalisée en local.
 
-Modifier le nouveau fichier `.env` : choisir une véritable clé secrète Django, renseigner les identifiants PostgreSQL et, si nécessaire, les paramètres SMTP et Ollama. Pour générer une clé :
+---
 
-```powershell
-python -c "import secrets; print(secrets.token_urlsafe(50))"
-```
-
-Préparer une **base PostgreSQL vide** destinée à l'installation, puis :
-
-```powershell
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-```
-
-Adresse locale : `http://127.0.0.1:8000/`.
-
-## Remarques de remise
-
-- Le vrai `.env`, les mots de passe et les données des utilisateurs ne sont **pas** inclus. Les valeurs de `.env.example` sont fictives.
-- L'environnement virtuel `venv` n'est pas inclus : chaque machine doit installer ses propres dépendances.
-- Les migrations historiques sont conservées, car elles définissent le schéma Django.
-- Ce ZIP est une **livraison de code source**, pas une base de données préremplie ni une installation vérifiée de bout en bout.
-- La base PostgreSQL locale de développement a présenté un décalage entre des colonnes et les modèles, ainsi qu'un conflit d'historique de migrations. Tester `migrate` sur une base vide avant toute démonstration sur une autre machine. Ne pas appliquer une correction arbitraire à une base contenant des données.
-- Les images de l'interface sont conservées ; vérifier les droits d'utilisation et la source du logo pour toute diffusion publique.
+**Réalisé par :** Hind Berma  
+**Établissement :** École des Sciences de l'Information (ESI) – Rabat  
+**Année :** 2026
