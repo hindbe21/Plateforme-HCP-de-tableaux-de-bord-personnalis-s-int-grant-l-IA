@@ -1,0 +1,545 @@
+{% extends "admin/base.html" %}
+{% load static i18n %}
+
+{% block title %}
+    {% if subtitle %}{{ subtitle }} | {% endif %}
+    {{ title }} | Administration HCP
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/admin_hcp.css' %}?v=20260725">
+    <link
+    rel="stylesheet"
+    href="{% static 'css/dark_mode.css' %}"
+>
+    <style>
+:root,
+html[data-theme="light"] {
+    --primary: #74133f;
+    --secondary: #f27922;
+    --accent: #ffffff;
+    --header-color: #ffffff;
+    --header-bg: #74133f;
+    --header-link-color: #ffffff;
+    --breadcrumbs-fg: #ffffff;
+    --breadcrumbs-link-fg: #ffffff;
+    --breadcrumbs-bg: #5a0d31;
+    --link-fg: #74133f;
+    --link-hover-color: #d95d0a;
+    --link-selected-fg: #570b2d;
+    --body-fg: #20242d;
+    --body-bg: #f7f6f4;
+    --body-quiet-color: #707887;
+    --body-medium-color: #4b5563;
+    --hairline-color: #e7e3df;
+    --border-color: #d8d2cd;
+    --darkened-bg: #f4f2f0;
+    --selected-bg: #fff7f2;
+    --selected-row: #fffaf7;
+    --button-fg: #ffffff;
+    --button-bg: #74133f;
+    --button-hover-bg: #570b2d;
+    --default-button-bg: #f27922;
+    --default-button-hover-bg: #d95d0a;
+    --delete-button-bg: #d92d20;
+    --delete-button-hover-bg: #b42318;
+    --object-tools-fg: #ffffff;
+    --object-tools-bg: #74133f;
+    --object-tools-hover-bg: #570b2d;
+}
+
+body {
+    background: var(--body-bg);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#header {
+    min-height: 72px;
+    padding: 0 28px;
+    background: linear-gradient(100deg, #5c0a30, #78123f 48%, #691033);
+    box-shadow: 0 7px 24px rgba(73,8,38,.18);
+}
+
+#branding,
+#branding h1 {
+    display: flex;
+    align-items: center;
+}
+
+.hcp-admin-brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff !important;
+    text-decoration: none;
+}
+
+.hcp-admin-logo-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.hcp-admin-brand-link strong,
+.hcp-admin-brand-link small {
+    display: block;
+}
+
+.hcp-admin-brand-link strong {
+    font-size: 1.05rem;
+}
+
+.hcp-admin-brand-link small {
+    color: rgba(255,255,255,.72);
+    font-size: .73rem;
+}
+
+.hcp-return-site {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    border: 1px solid rgba(255,255,255,.30);
+    border-radius: 9px;
+    background: rgba(255,255,255,.08);
+    color: #fff !important;
+    padding: 0 14px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+div.breadcrumbs {
+    padding: 12px 28px;
+    background: #5a0d31;
+}
+
+.dashboard #content,
+.hcp-admin-dashboard-page #content {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 28px 34px 44px !important;
+}
+
+.dashboard #content-main,
+.hcp-admin-dashboard-page #content-main {
+    width: auto !important;
+    float: none !important;
+}
+
+.hcp-admin-shell {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.hcp-admin-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+    border: 1px solid #e7e3df;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 12px 34px rgba(28,25,23,.07);
+    padding: 28px;
+}
+
+.hcp-admin-kicker {
+    margin: 0 0 6px;
+    color: #d95d0a;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.hcp-admin-heading h1 {
+    margin: 0 0 8px;
+    color: #570b2d;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.hcp-admin-heading p {
+    margin: 0;
+    color: #707887;
+}
+
+.hcp-admin-heading-link {
+    border: 1px solid #d8d2cd;
+    border-radius: 10px;
+    background: #fff;
+    color: #74133f !important;
+    padding: 10px 14px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.hcp-admin-overview {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.hcp-admin-overview article {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border: 1px solid #e7e3df;
+    border-radius: 15px;
+    background: #fff;
+    padding: 16px;
+}
+
+.hcp-admin-overview-icon {
+    width: 46px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(242,121,34,.10);
+    color: #d95d0a;
+    font-weight: 800;
+}
+
+.hcp-admin-overview strong,
+.hcp-admin-overview small {
+    display: block;
+}
+
+.hcp-admin-overview small {
+    margin-top: 3px;
+    color: #707887;
+}
+
+.hcp-admin-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 320px;
+    gap: 20px;
+}
+
+.hcp-admin-section {
+    margin-bottom: 18px;
+    overflow: hidden;
+    border: 1px solid #e7e3df;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(28,25,23,.045);
+}
+
+.hcp-admin-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid #e7e3df;
+    padding: 18px 20px;
+}
+
+.hcp-admin-section-header h2 {
+    margin: 0;
+    color: #570b2d;
+    font-size: 1.05rem;
+}
+
+.hcp-admin-section-header p {
+    margin: 4px 0 0;
+    color: #707887;
+    font-size: .8rem;
+}
+
+.hcp-admin-section-header > span {
+    color: #d95d0a;
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+.hcp-admin-model-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 0;
+}
+
+.hcp-admin-model-card {
+    min-height: 125px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    border-right: 1px solid #e7e3df;
+    border-bottom: 1px solid #e7e3df;
+    padding: 18px 20px;
+}
+
+.hcp-admin-model-card:nth-child(2n) {
+    border-right: 0;
+}
+
+.hcp-admin-model-card h3 {
+    margin: 0;
+    font-size: .95rem;
+}
+
+.hcp-admin-model-card h3 a {
+    color: #20242d;
+    text-decoration: none;
+}
+
+.hcp-admin-model-card p {
+    margin: 5px 0 0;
+    color: #707887;
+    font-size: .78rem;
+}
+
+.hcp-admin-model-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px;
+}
+
+.hcp-admin-manage-link,
+.hcp-admin-add-link {
+    min-width: 72px;
+    border-radius: 8px;
+    padding: 7px 10px;
+    text-align: center;
+    text-decoration: none !important;
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.hcp-admin-manage-link {
+    border: 1px solid rgba(116,19,63,.25);
+    color: #74133f !important;
+}
+
+.hcp-admin-add-link {
+    background: #74133f;
+    color: #fff !important;
+}
+
+.hcp-admin-recent .actionlist {
+    margin: 0;
+    padding: 14px 20px;
+}
+
+.hcp-admin-recent .actionlist li {
+    margin: 0;
+    border-bottom: 1px solid #e7e3df;
+    padding: 12px 0 12px 22px;
+}
+
+.hcp-admin-recent .actionlist li:last-child {
+    border-bottom: 0;
+}
+
+.module,
+.inline-group,
+.submit-row,
+#changelist-filter,
+#changelist .results {
+    border-radius: 14px;
+}
+
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+a.button {
+    border-radius: 9px;
+}
+
+@media (max-width: 1000px) {
+    .hcp-admin-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .hcp-admin-overview {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .dashboard #content,
+    .hcp-admin-dashboard-page #content {
+        padding: 18px 12px 32px !important;
+    }
+
+    .hcp-admin-heading {
+        flex-direction: column;
+    }
+
+    .hcp-admin-model-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hcp-admin-model-card,
+    .hcp-admin-model-card:nth-child(2n) {
+        border-right: 0;
+    }
+}
+
+
+/* Renforcement : appliqué aussi aux écrans de liste et de formulaire */
+#container { min-width: 0; }
+#header { display: flex; align-items: center; gap: 24px; }
+#branding { flex: 0 0 auto; }
+#user-tools {
+    flex: 1 1 auto;
+    margin: 0 !important;
+    color: rgba(255,255,255,.82) !important;
+    text-align: right;
+}
+#user-tools a { color: #fff !important; font-weight: 600; }
+#nav-sidebar { display: none !important; }
+.main.shifted > #nav-sidebar + .content { max-width: none !important; }
+#content {
+    width: auto !important;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px 32px 48px;
+}
+#content h1 { color: #570b2d; font-weight: 800; }
+#content h2 { color: #74133f; }
+.module {
+    overflow: hidden;
+    border: 1px solid #e7e3df !important;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(28,25,23,.055);
+}
+.module h2,
+.module caption,
+.inline-group h2 {
+    background: linear-gradient(90deg, #74133f, #8f1c50) !important;
+    color: #fff !important;
+    padding: 12px 16px !important;
+}
+#changelist .results {
+    overflow-x: auto;
+    border: 1px solid #e7e3df;
+    background: #fff;
+}
+#changelist table thead th {
+    background: #faf7f5;
+    color: #570b2d;
+    font-weight: 800;
+}
+#changelist table tbody tr:hover { background: #fff8f2; }
+#changelist-filter {
+    border: 1px solid #e7e3df;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(28,25,23,.05);
+}
+#changelist-filter h2 { border-radius: 14px 14px 0 0; }
+#toolbar {
+    border: 1px solid #e7e3df !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    padding: 12px !important;
+}
+#toolbar form input[type="text"] {
+    min-height: 40px;
+    border: 1px solid #d8d2cd;
+    border-radius: 9px;
+    padding: 0 12px;
+}
+.object-tools a,
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+a.button {
+    min-height: 38px;
+    border: 0;
+    background: #74133f;
+    color: #fff !important;
+    padding: 10px 16px;
+    font-weight: 700;
+}
+.object-tools a:hover,
+.button:hover,
+input[type=submit]:hover,
+input[type=button]:hover,
+.submit-row input:hover,
+a.button:hover { background: #570b2d; }
+input[type=submit].default { background: #f27922; }
+input[type=submit].default:hover { background: #d95d0a; }
+.submit-row {
+    border: 1px solid #e7e3df;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(28,25,23,.05);
+}
+.form-row input,
+.form-row textarea,
+.form-row select,
+.vTextField {
+    border: 1px solid #d8d2cd !important;
+    border-radius: 9px !important;
+    padding: 9px 11px !important;
+}
+.form-row input:focus,
+.form-row textarea:focus,
+.form-row select:focus {
+    border-color: #f27922 !important;
+    box-shadow: 0 0 0 3px rgba(242,121,34,.14);
+    outline: 0;
+}
+.messagelist li { border-radius: 10px; }
+.login #container {
+    overflow: hidden;
+    border-radius: 18px;
+    box-shadow: 0 24px 65px rgba(73,8,38,.18);
+}
+@media (max-width: 767px) {
+    #header { align-items: flex-start; flex-direction: column; padding: 14px 16px; }
+    #user-tools { text-align: left; }
+    #content { padding: 20px 12px 36px; }
+}
+
+    </style>
+{% endblock %}
+
+{% block branding %}
+<div class="hcp-admin-brand">
+    <a href="{% url 'admin:index' %}" class="hcp-admin-brand-link">
+        <img
+            src="{% static 'images/logo_hcp.png' %}"
+            alt="Logo HCP"
+            class="hcp-admin-logo-image"
+        >
+        <span>
+            <strong>Administration HCP</strong>
+            <small>Plateforme de tableaux de bord</small>
+        </span>
+    </a>
+</div>
+{% endblock %}
+
+{% block nav-global %}
+<a href="{% url 'home' %}" class="hcp-return-site">
+    Retour à la plateforme
+</a>
+<button
+    type="button"
+    id="hcp-theme-toggle"
+    class="hcp-theme-toggle"
+    aria-label="Activer le mode sombre"
+    aria-pressed="false"
+>
+    <span
+        data-theme-symbol
+        aria-hidden="true"
+    >
+        ☾
+    </span>
+</button>
+
+<script
+    src="{% static 'js/theme_toggle.js' %}"
+></script>
+{% endblock %}

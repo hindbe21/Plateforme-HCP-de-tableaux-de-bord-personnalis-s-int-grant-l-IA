@@ -1,0 +1,542 @@
+{% extends "base.html" %}
+
+{% block title %}
+Créer un widget avec l’IA | Plateforme HCP
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .ai-widget-page {
+        --hcp-bordeaux: #881b4b;
+        --hcp-orange: #ed7d31;
+        --hcp-border: #e5e7eb;
+        --hcp-muted: #6b7280;
+    }
+
+    .ai-widget-page .ai-panel,
+    .ai-widget-page .proposal-panel,
+    .ai-widget-page .privacy-panel,
+    .ai-widget-page .profile-panel {
+        border: 1px solid var(--hcp-border);
+        border-radius: 18px;
+        background: #fff;
+    }
+
+    .ai-widget-page .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: .35rem .7rem;
+        border-radius: 999px;
+        background: #fff4f8;
+        color: var(--hcp-bordeaux);
+        border: 1px solid #ead7e0;
+        font-size: .82rem;
+        font-weight: 700;
+    }
+
+    .ai-widget-page .proposal-item {
+        padding: .8rem 0;
+        border-bottom: 1px solid #f0f1f4;
+    }
+
+    .ai-widget-page .proposal-item:last-child {
+        border-bottom: 0;
+    }
+
+    .ai-widget-page .proposal-label {
+        color: var(--hcp-muted);
+        font-size: .8rem;
+        margin-bottom: .15rem;
+    }
+
+    .ai-widget-page .proposal-value {
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .ai-widget-page .example-btn {
+        text-align: left;
+        white-space: normal;
+    }
+
+    .ai-widget-page .filter-proposal {
+        border: 1px solid #dce8e4;
+        border-radius: 10px;
+        background: #f6fbf9;
+        padding: .7rem .85rem;
+    }
+
+    .ai-widget-page .profile-table {
+        font-size: .86rem;
+    }
+
+    .ai-widget-page .profile-table td {
+        vertical-align: middle;
+    }
+</style>
+
+
+<div class="container py-4 ai-widget-page">
+
+    <a
+        href="{% url 'dashboards:detail' tableau_bord.pk %}"
+        class="text-decoration-none"
+    >
+        ← Retour au tableau de bord
+    </a>
+
+
+    <div class="row g-4 mt-1">
+
+        <div class="col-xl-7">
+
+            <section class="ai-panel shadow-sm p-4">
+
+                <div
+                    class="d-flex flex-wrap justify-content-between
+                           align-items-start gap-3 mb-4"
+                >
+
+                    <div>
+                        <span class="ai-badge mb-2">
+                            Assistant IA
+                        </span>
+
+                        <h1 class="h3 mb-1">
+                            Créer un widget en langage naturel
+                        </h1>
+
+                        <p class="text-muted mb-0">
+                            Tableau de bord :
+                            <strong>
+                                {{ tableau_bord.titre }}
+                            </strong>
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="generer"
+                    >
+
+                    <div class="mb-3">
+
+                        <label
+                            for="{{ form.demande.id_for_label }}"
+                            class="form-label fw-semibold"
+                        >
+                            {{ form.demande.label }}
+                        </label>
+
+                        {{ form.demande }}
+
+                        {% if form.demande.help_text %}
+                            <div class="form-text">
+                                {{ form.demande.help_text }}
+                            </div>
+                        {% endif %}
+
+                        {% for erreur in form.demande.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ erreur }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Générer une proposition
+                    </button>
+
+                </form>
+
+
+                <hr class="my-4">
+
+
+                <h2 class="h6 mb-3">
+                    Exemples de demandes
+                </h2>
+
+                <div class="d-grid gap-2">
+
+                    <button
+                        type="button"
+                        class="btn btn-light border example-btn"
+                        data-example="Affiche le nombre d’observations par année sous forme de courbe."
+                    >
+                        Nombre d’observations par année
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-light border example-btn"
+                        data-example="Crée un graphique en barres montrant le nombre d’observations par catégorie, trié du plus grand au plus petit."
+                    >
+                        Nombre d’observations par catégorie
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-light border example-btn"
+                        data-example="Affiche la moyenne d’une mesure numérique pour chaque catégorie sous forme de barres."
+                    >
+                        Moyenne d’une mesure par catégorie
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <section class="privacy-panel shadow-sm p-4 mt-4">
+
+                <h2 class="h6 mb-2">
+                    Données transmises à l’assistant
+                </h2>
+
+                <p class="small text-muted mb-0">
+                    Les demandes simples sont d’abord interprétées
+                    localement par la plateforme. Lorsque Ollama est
+                    nécessaire, il reçoit uniquement le nom et le type
+                    des colonnes, quelques exemples, le nombre de valeurs
+                    distinctes et le nombre de valeurs manquantes.
+                    Les lignes complètes du fichier ne sont pas transmises.
+                </p>
+
+            </section>
+
+
+            <section class="profile-panel shadow-sm p-4 mt-4">
+
+                <h2 class="h5 mb-2">
+                    Profil des colonnes
+                </h2>
+
+                <p class="small text-muted">
+                    Utilisez les noms exacts affichés ci-dessous
+                    dans votre demande à l’assistant.
+                </p>
+
+                <div class="table-responsive">
+                    <table class="table table-sm profile-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Colonne</th>
+                                <th>Profil</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for nom, profil in profils_colonnes.items %}
+                                <tr>
+                                    <td class="fw-semibold">
+                                        {{ profil.nom }}
+                                    </td>
+
+                                    <td>
+                                        <div>
+                                            {{ profil.type }}
+
+                                            {% if profil.semble_identifiant %}
+                                                <span class="badge text-bg-light border">
+                                                    Identifiant probable
+                                                </span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="text-muted">
+                                            {% if profil.exemples %}
+                                                {{ profil.exemples|join:", " }}
+                                            {% else %}
+                                                Aucun exemple
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="text-muted">
+                                            {{ profil.nombre_uniques }} distincte(s),
+                                            {{ profil.nombre_manquantes }} manquante(s)
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2">
+                                        Aucune colonne disponible.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <div class="col-xl-5">
+
+            <section class="proposal-panel shadow-sm p-4">
+
+                <h2 class="h5 mb-1">
+                    Proposition
+                </h2>
+
+                <p class="small text-muted mb-4">
+                    Aucun widget n’est créé avant votre confirmation.
+                </p>
+
+
+                {% if proposition %}
+
+                    <div class="proposal-item">
+                        <div class="proposal-label">
+                            Titre
+                        </div>
+
+                        <div class="proposal-value">
+                            {{ proposition.titre }}
+                        </div>
+                    </div>
+
+
+                    <div class="proposal-item">
+                        <div class="proposal-label">
+                            Type de visualisation
+                        </div>
+
+                        <div class="proposal-value">
+                            {{ proposition.type_widget }}
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="proposal-item">
+                                <div class="proposal-label">
+                                    Dimension / axe X
+                                </div>
+
+                                <div class="proposal-value">
+                                    {{ proposition.colonne_categorie|default:"Aucune" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="proposal-item">
+                                <div class="proposal-label">
+                                    Mesure / axe Y
+                                </div>
+
+                                <div class="proposal-value">
+                                    {{ proposition.colonne_mesure|default:"Aucune" }}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="proposal-item">
+                        <div class="proposal-label">
+                            Série / légende
+                        </div>
+
+                        <div class="proposal-value">
+                            {{ proposition.colonne_serie|default:"Aucune" }}
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="proposal-item">
+                                <div class="proposal-label">
+                                    Agrégation
+                                </div>
+
+                                <div class="proposal-value">
+                                    {{ proposition.agregation }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="proposal-item">
+                                <div class="proposal-label">
+                                    Ordre de tri
+                                </div>
+
+                                <div class="proposal-value">
+                                    {{ proposition.ordre_tri }}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="proposal-item">
+                        <div class="proposal-label">
+                            Explication de l’assistant
+                        </div>
+
+                        <div class="proposal-value fw-normal">
+                            {{ proposition.explication }}
+                        </div>
+                    </div>
+
+
+                    <div class="proposal-item">
+
+                        <div class="proposal-label mb-2">
+                            Filtres proposés
+                        </div>
+
+                        {% if proposition.filtres %}
+
+                            <div class="d-grid gap-2">
+
+                                {% for filtre in proposition.filtres %}
+
+                                    <div class="filter-proposal small">
+
+                                        <strong>
+                                            {{ filtre.colonne }}
+                                        </strong>
+
+                                        · {{ filtre.operateur }}
+
+                                        {% if filtre.valeur %}
+                                            · {{ filtre.valeur }}
+                                        {% endif %}
+
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="proposal-value fw-normal">
+                                Aucun filtre
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="action"
+                                value="creer"
+                            >
+
+                            <button
+                                type="submit"
+                                class="btn btn-success"
+                            >
+                                Confirmer et créer
+                            </button>
+                        </form>
+
+
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="action"
+                                value="effacer"
+                            >
+
+                            <button
+                                type="submit"
+                                class="btn btn-outline-secondary"
+                            >
+                                Effacer la proposition
+                            </button>
+                        </form>
+
+                    </div>
+
+                {% else %}
+
+                    <div
+                        class="text-center text-muted
+                               border rounded-3 p-5"
+                    >
+                        Décrivez votre besoin pour obtenir
+                        une proposition de visualisation.
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+            const textarea = document.getElementById(
+                "{{ form.demande.id_for_label }}"
+            );
+
+            document
+                .querySelectorAll("[data-example]")
+                .forEach(function (button) {
+                    button.addEventListener(
+                        "click",
+                        function () {
+                            if (!textarea) {
+                                return;
+                            }
+
+                            textarea.value = (
+                                button.dataset.example
+                            );
+
+                            textarea.focus();
+                        }
+                    );
+                });
+        }
+    );
+</script>
+
+{% endblock %}

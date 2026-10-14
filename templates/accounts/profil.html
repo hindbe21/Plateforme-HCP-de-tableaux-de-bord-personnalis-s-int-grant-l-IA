@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Mon profil | Plateforme HCP{% endblock %}
+
+{% block content %}
+
+<div class="hcp-page">
+
+    <div class="app-breadcrumb">
+        <a href="{% url 'home' %}">Accueil</a>
+        <span class="mx-2">›</span>
+        Mon profil
+    </div>
+
+    <div class="mb-4">
+        <h1 class="page-title">Mon profil</h1>
+        <p class="page-subtitle">
+            Gérez vos informations personnelles et la sécurité de votre compte.
+        </p>
+    </div>
+
+
+    <section class="hcp-profile-banner mb-4">
+
+        <div class="d-flex flex-column flex-xl-row align-items-xl-center gap-4">
+
+            <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3 flex-grow-1">
+
+                <div class="hcp-profile-big-avatar">
+                    {{ utilisateur.first_name|first|upper }}{{ utilisateur.last_name|first|upper }}
+                </div>
+
+                <div>
+
+                    <h2 class="h3 text-hcp-burgundy fw-bold mb-1">
+                        {{ utilisateur.get_full_name|default:utilisateur.email }}
+                    </h2>
+
+                    <div class="fw-semibold">
+                        {{ utilisateur.get_role_display|default:"Utilisateur métier" }}
+                    </div>
+
+                    <div class="text-muted mt-2">
+                        <i class="bi bi-envelope me-2"></i>
+                        {{ utilisateur.email }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="d-flex flex-column flex-lg-row">
+
+                <div class="hcp-profile-stat">
+                    <span class="hcp-round-icon">
+                        <i class="bi bi-calendar3"></i>
+                    </span>
+                    <div>
+                        <div class="small text-muted">Dernière connexion</div>
+                        <div class="fw-semibold">
+                            {{ utilisateur.last_login|date:"d/m/Y à H:i"|default:"Aucune" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hcp-profile-stat">
+                    <span class="hcp-round-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </span>
+                    <div>
+                        <div class="small text-muted">Statut du compte</div>
+                        <span class="badge text-bg-success mt-1">
+                            {{ utilisateur.get_statut_display|default:"Actif" }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="hcp-profile-stat">
+                    <span class="hcp-round-icon">
+                        <i class="bi bi-clock"></i>
+                    </span>
+                    <div>
+                        <div class="small text-muted">Membre depuis</div>
+                        <div class="fw-semibold">
+                            {{ utilisateur.date_joined|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <div class="row g-4">
+
+        <div class="col-lg-4">
+
+            <section class="hcp-settings-card">
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="hcp-round-icon">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    <div>
+                        <h2 class="h6 fw-bold text-hcp-burgundy mb-1">
+                            Informations personnelles
+                        </h2>
+                        <p class="small text-muted mb-0">
+                            Consultez vos informations de contact.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-person me-2"></i>Nom complet</span>
+                    <strong>{{ utilisateur.get_full_name|default:"Non renseigné" }}</strong>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-envelope me-2"></i>Email</span>
+                    <span class="text-muted text-break">{{ utilisateur.email }}</span>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-briefcase me-2"></i>Rôle</span>
+                    <span class="text-muted">{{ utilisateur.get_role_display }}</span>
+                </div>
+
+                <a
+                    href="{% url 'modifier_profil' %}"
+                    class="btn btn-dashboard-outline w-100 mt-4"
+                >
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Modifier le profil
+                </a>
+
+            </section>
+
+        </div>
+
+
+        <div class="col-lg-4">
+
+            <section class="hcp-settings-card">
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="hcp-round-icon">
+                        <i class="bi bi-gear"></i>
+                    </span>
+                    <div>
+                        <h2 class="h6 fw-bold text-hcp-burgundy mb-1">
+                            Paramètres du compte
+                        </h2>
+                        <p class="small text-muted mb-0">
+                            Préférences générales de la plateforme.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-bell me-2"></i>Notifications</span>
+                    <span class="text-muted">{{ preferences.notifications }}</span>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-palette me-2"></i>Thème</span>
+                    <span class="text-muted">{{ preferences.theme }}</span>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-globe me-2"></i>Langue</span>
+                    <span class="text-muted">{{ preferences.langue }}</span>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-clock-history me-2"></i>Fuseau horaire</span>
+                    <span class="text-muted">{{ preferences.fuseau_horaire }}</span>
+                </div>
+
+                <a
+                    href="{% url 'preferences_compte' %}"
+                    class="btn btn-dashboard-outline w-100 mt-4"
+                >
+                    <i class="bi bi-sliders me-2"></i>
+                    Gérer les paramètres
+                </a>
+
+            </section>
+
+        </div>
+
+
+        <div class="col-lg-4">
+
+            <section class="hcp-settings-card">
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="hcp-round-icon">
+                        <i class="bi bi-shield"></i>
+                    </span>
+                    <div>
+                        <h2 class="h6 fw-bold text-hcp-burgundy mb-1">
+                            Sécurité
+                        </h2>
+                        <p class="small text-muted mb-0">
+                            Protégez votre compte et vos accès.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-lock me-2"></i>Mot de passe</span>
+                    <span class="text-muted">••••••••</span>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-key me-2"></i>Session active</span>
+                    <span class="text-muted">1 session</span>
+                </div>
+
+                <div class="hcp-settings-row">
+                    <span><i class="bi bi-patch-check me-2"></i>Authentification</span>
+                    <span class="text-muted">{{ preferences.notifications }}</span>
+                </div>
+
+                <a
+                    href="{% url 'changer_mot_de_passe' %}"
+                    class="btn btn-dashboard-outline w-100 mt-4"
+                >
+                    <i class="bi bi-lock me-2"></i>
+                    Changer le mot de passe
+                </a>
+
+            </section>
+
+        </div>
+
+    </div>
+
+
+    <section class="hcp-shell p-4 mt-4">
+
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+
+            <div class="d-flex align-items-center gap-3">
+                <span class="hcp-round-icon">
+                    <i class="bi bi-box-arrow-right"></i>
+                </span>
+                <div>
+                    <h2 class="h6 text-hcp-burgundy fw-bold mb-1">
+                        Se déconnecter
+                    </h2>
+                    <p class="small text-muted mb-0">
+                        Fermez votre session sur cette plateforme.
+                    </p>
+                </div>
+            </div>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger px-4">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Se déconnecter
+                </button>
+            </form>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

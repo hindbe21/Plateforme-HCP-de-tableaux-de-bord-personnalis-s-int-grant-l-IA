@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Accueil | Plateforme HCP
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h1 class="h3 mb-1">
+        Bienvenue {{ user.first_name|default:user.email }}
+    </h1>
+
+    <p class="text-muted">
+        Gérez vos données et créez progressivement
+        vos tableaux de bord personnalisés.
+    </p>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-6 col-xl-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <h2 class="h5">
+                    Jeux de données
+                </h2>
+
+                <p class="text-muted">
+                    Importez et consultez vos fichiers CSV et Excel.
+                </p>
+
+                <div class="d-flex gap-2">
+
+                    <a
+                        href="{% url 'datasets:liste' %}"
+                        class="btn btn-outline-success"
+                    >
+                        Consulter
+                    </a>
+
+                    <a
+                        href="{% url 'datasets:importer' %}"
+                        class="btn btn-success"
+                    >
+                        Importer
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <h2 class="h5">
+                    Tableaux de bord
+                </h2>
+
+                <p class="text-muted">
+                    Créez des tableaux de bord à partir
+                    de vos données métier.
+                </p>
+
+                <button
+                    class="btn btn-outline-secondary"
+                    disabled
+                >
+                    Prochaine étape
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <h2 class="h5">
+                    Widgets
+                </h2>
+
+                <p class="text-muted">
+                    Ajoutez des graphiques, indicateurs et tableaux.
+                </p>
+
+                <button
+                    class="btn btn-outline-secondary"
+                    disabled
+                >
+                    Prochaine étape
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

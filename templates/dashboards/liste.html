@@ -1,0 +1,610 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Mes tableaux de bord | Plateforme HCP
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/dashboard_list.css' %}"
+    >
+{% endblock %}
+
+
+{% block content %}
+
+<div class="dashboard-list-page">
+
+    <header class="dashboard-list-header">
+
+        <div>
+
+            <div class="page-kicker">
+                Espaces de visualisation
+            </div>
+
+            <h1 class="page-title">
+                Mes tableaux de bord
+            </h1>
+
+            <p class="page-subtitle">
+                Consultez, recherchez et gérez vos tableaux de bord personnalisés.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'dashboards:creer' %}"
+            class="btn btn-hcp-primary dashboard-create-button"
+        >
+            <i class="bi bi-plus-circle"></i>
+            Créer un tableau de bord
+        </a>
+
+    </header>
+
+
+    <section
+        class="dashboard-summary-grid"
+        aria-label="Résumé des tableaux de bord"
+    >
+
+        <article class="dashboard-summary-card">
+
+            <span class="dashboard-summary-icon icon-orange">
+                <i class="bi bi-grid-1x2"></i>
+            </span>
+
+            <div>
+                <div class="dashboard-summary-value">
+                    {{ stats.total|default:"0" }}
+                </div>
+
+                <div class="dashboard-summary-label">
+                    Total tableaux de bord
+                </div>
+
+                <div class="dashboard-summary-note">
+                    Tous vos espaces créés
+                </div>
+            </div>
+
+        </article>
+
+
+        <article class="dashboard-summary-card">
+
+            <span class="dashboard-summary-icon icon-green">
+                <i class="bi bi-check-circle"></i>
+            </span>
+
+            <div>
+                <div class="dashboard-summary-value">
+                    {{ stats.actifs|default:"0" }}
+                </div>
+
+                <div class="dashboard-summary-label">
+                    Tableaux actifs
+                </div>
+
+                <div class="dashboard-summary-note">
+                    Disponibles pour l’analyse
+                </div>
+            </div>
+
+        </article>
+
+
+        <article class="dashboard-summary-card">
+
+            <span class="dashboard-summary-icon icon-burgundy">
+                <i class="bi bi-clock-history"></i>
+            </span>
+
+            <div>
+                <div class="dashboard-summary-value">
+                    {{ stats.recents|default:"0" }}
+                </div>
+
+                <div class="dashboard-summary-label">
+                    Récemment modifiés
+                </div>
+
+                <div class="dashboard-summary-note">
+                    Au cours des 7 derniers jours
+                </div>
+            </div>
+
+        </article>
+
+
+        <article class="dashboard-summary-card">
+
+            <span class="dashboard-summary-icon icon-blue">
+                <i class="bi bi-bar-chart"></i>
+            </span>
+
+            <div>
+                <div class="dashboard-summary-value">
+                    {{ stats.widgets|default:"0" }}
+                </div>
+
+                <div class="dashboard-summary-label">
+                    Widgets créés
+                </div>
+
+                <div class="dashboard-summary-note">
+                    Graphiques et indicateurs
+                </div>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <section class="dashboard-list-shell">
+
+        <form
+            method="get"
+            class="dashboard-filter-bar"
+            aria-label="Filtres des tableaux de bord"
+        >
+
+            <div class="dashboard-search-field">
+
+                <i
+                    class="bi bi-search"
+                    aria-hidden="true"
+                ></i>
+
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ filtres.q }}"
+                    class="form-control"
+                    placeholder="Rechercher un tableau de bord..."
+                    aria-label="Rechercher un tableau de bord"
+                >
+
+            </div>
+
+
+            <div class="dashboard-filter-field">
+
+                <label for="filtre-jeu-donnees">
+                    Jeu de données
+                </label>
+
+                <select
+                    id="filtre-jeu-donnees"
+                    name="jeu_donnees"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Tous
+                    </option>
+
+                    {% for jeu in jeux_filtres %}
+
+                        <option
+                            value="{{ jeu.pk }}"
+                            {% if filtres.jeu_donnees == jeu.pk|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ jeu.nom }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="dashboard-filter-field">
+
+                <label for="filtre-date">
+                    Date de modification
+                </label>
+
+                <input
+                    id="filtre-date"
+                    type="date"
+                    name="date"
+                    value="{{ filtres.date }}"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="dashboard-filter-field">
+
+                <label for="filtre-statut">
+                    Statut
+                </label>
+
+                <select
+                    id="filtre-statut"
+                    name="statut"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Tous les statuts
+                    </option>
+
+                    <option
+                        value="actif"
+                        {% if filtres.statut == "actif" %}
+                            selected
+                        {% endif %}
+                    >
+                        Actif
+                    </option>
+
+                    <option
+                        value="inactif"
+                        {% if filtres.statut == "inactif" %}
+                            selected
+                        {% endif %}
+                    >
+                        Inactif
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="dashboard-filter-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-hcp-primary"
+                >
+                    <i class="bi bi-funnel"></i>
+                    Filtrer
+                </button>
+
+                <a
+                    href="{% url 'dashboards:liste' %}"
+                    class="btn btn-outline-secondary
+                           dashboard-reset-button"
+                    title="Réinitialiser les filtres"
+                >
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    <span>Réinitialiser</span>
+                </a>
+
+            </div>
+
+        </form>
+
+
+        {% if tableaux_bord %}
+
+            <div class="dashboard-card-grid">
+
+                {% for tableau in tableaux_bord %}
+
+                    <article class="dashboard-list-card">
+
+                        <div class="dashboard-card-top">
+
+                            
+                            
+
+                            <span
+                                class="dashboard-card-icon
+                                       dashboard-card-icon-burgundy"
+                                aria-hidden="true"
+                            >
+                                <i class="bi bi-bar-chart-line"></i>
+                            </span>
+
+
+                            <div class="dropdown">
+
+                                <button
+                                    class="dashboard-card-menu"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    aria-label="Actions pour {{ tableau.titre }}"
+                                >
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="{% url 'dashboards:detail' tableau.pk %}"
+                                        >
+                                            <i class="bi bi-eye"></i>
+                                            Ouvrir
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="{% url 'dashboards:modifier' tableau.pk %}"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                            Modifier
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    <li>
+                                        <a
+                                            class="dropdown-item text-danger"
+                                            href="{% url 'dashboards:supprimer' tableau.pk %}"
+                                        >
+                                            <i class="bi bi-trash"></i>
+                                            Supprimer
+                                        </a>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+
+                        <a
+                            href="{% url 'dashboards:detail' tableau.pk %}"
+                            class="dashboard-card-title"
+                        >
+                            {{ tableau.titre }}
+                        </a>
+
+
+                        <p class="dashboard-card-description">
+                            {% if tableau.description %}
+                                {{ tableau.description|truncatechars:105 }}
+                            {% else %}
+                                Aucun descriptif n’a été renseigné pour ce tableau de bord.
+                            {% endif %}
+                        </p>
+
+
+                        <div class="dashboard-card-meta">
+
+                            <div>
+
+                                <i class="bi bi-database"></i>
+
+                                <span title="{{ tableau.jeu_donnees.nom }}">
+                                    {{ tableau.jeu_donnees.nom|truncatechars:38 }}
+                                </span>
+
+                            </div>
+
+
+                            <div>
+
+                                <i class="bi bi-bar-chart"></i>
+
+                                <span>
+                                    {{ tableau.widgets.count }}
+                                    widget{{ tableau.widgets.count|pluralize }}
+                                </span>
+
+                            </div>
+
+
+                            <div>
+
+                                <i class="bi bi-calendar3"></i>
+
+                                <span>
+                                    Modifié le
+                                    {{ tableau.date_modification|date:"d/m/Y à H:i" }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <footer class="dashboard-card-footer">
+
+                            <a
+                                href="{% url 'dashboards:detail' tableau.pk %}"
+                                class="btn dashboard-open-button"
+                            >
+                                Ouvrir
+                            </a>
+
+
+                            {% if tableau.actif %}
+
+                                <span class="dashboard-status status-active">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Actif
+                                </span>
+
+                            {% else %}
+
+                                <span class="dashboard-status status-inactive">
+                                    <i class="bi bi-pause-circle-fill"></i>
+                                    Inactif
+                                </span>
+
+                            {% endif %}
+
+                        </footer>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% if page_obj.paginator.num_pages > 1 %}
+
+                <nav
+                    class="dashboard-pagination"
+                    aria-label="Pagination des tableaux de bord"
+                >
+
+                    <div class="dashboard-pagination-info">
+                        Page {{ page_obj.number }}
+                        sur {{ page_obj.paginator.num_pages }}
+                        · {{ page_obj.paginator.count }} résultat(s)
+                    </div>
+
+
+                    <ul class="pagination mb-0">
+
+                        {% if page_obj.has_previous %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?page={{ page_obj.previous_page_number }}&q={{ filtres.q|urlencode }}&jeu_donnees={{ filtres.jeu_donnees|urlencode }}&date={{ filtres.date|urlencode }}&statut={{ filtres.statut|urlencode }}"
+                                    aria-label="Page précédente"
+                                >
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+
+                            </li>
+
+                        {% else %}
+
+                            <li class="page-item disabled">
+                                <span class="page-link">
+                                    <i class="bi bi-chevron-left"></i>
+                                </span>
+                            </li>
+
+                        {% endif %}
+
+
+                        {% for numero in page_obj.paginator.page_range %}
+
+                            {% if numero == page_obj.number %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        {{ numero }}
+                                    </span>
+                                </li>
+
+                            {% elif numero >= page_obj.number|add:"-2" and numero <= page_obj.number|add:"2" %}
+
+                                <li class="page-item">
+
+                                    <a
+                                        class="page-link"
+                                        href="?page={{ numero }}&q={{ filtres.q|urlencode }}&jeu_donnees={{ filtres.jeu_donnees|urlencode }}&date={{ filtres.date|urlencode }}&statut={{ filtres.statut|urlencode }}"
+                                    >
+                                        {{ numero }}
+                                    </a>
+
+                                </li>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+
+                        {% if page_obj.has_next %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?page={{ page_obj.next_page_number }}&q={{ filtres.q|urlencode }}&jeu_donnees={{ filtres.jeu_donnees|urlencode }}&date={{ filtres.date|urlencode }}&statut={{ filtres.statut|urlencode }}"
+                                    aria-label="Page suivante"
+                                >
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+
+                            </li>
+
+                        {% else %}
+
+                            <li class="page-item disabled">
+                                <span class="page-link">
+                                    <i class="bi bi-chevron-right"></i>
+                                </span>
+                            </li>
+
+                        {% endif %}
+
+                    </ul>
+
+                </nav>
+
+            {% endif %}
+
+        {% else %}
+
+            <div class="dashboard-empty-state">
+
+                <span class="dashboard-empty-icon">
+                    <i class="bi bi-grid-1x2"></i>
+                </span>
+
+                <h2>
+                    Aucun tableau de bord trouvé
+                </h2>
+
+                <p>
+                    {% if filtres.q or filtres.jeu_donnees or filtres.date or filtres.statut %}
+                        Aucun résultat ne correspond aux filtres sélectionnés.
+                    {% else %}
+                        Commencez par créer votre premier espace de visualisation.
+                    {% endif %}
+                </p>
+
+
+                {% if filtres.q or filtres.jeu_donnees or filtres.date or filtres.statut %}
+
+                    <a
+                        href="{% url 'dashboards:liste' %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Réinitialiser les filtres
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{% url 'dashboards:creer' %}"
+                        class="btn btn-hcp-primary"
+                    >
+                        <i class="bi bi-plus-lg"></i>
+                        Créer un tableau de bord
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

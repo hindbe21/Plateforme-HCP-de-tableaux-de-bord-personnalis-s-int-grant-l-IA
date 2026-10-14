@@ -1,0 +1,1048 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Assistant intelligent | Plateforme HCP
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+
+    <style>
+        .assistant-page {
+            --assistant-green: #176b55;
+            --assistant-green-dark: #105443;
+            --assistant-soft: #edf7f3;
+            --assistant-border: #dfe4ea;
+            --assistant-muted: #667085;
+            --assistant-text: #172033;
+
+            width: min(1500px, calc(100vw - 2rem));
+            margin-left: 50%;
+            transform: translateX(-50%);
+            color: var(--assistant-text);
+        }
+
+        .assistant-page .assistant-frame {
+            overflow: hidden;
+            border: 1px solid var(--assistant-border);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 14px 40px rgba(16, 24, 40, .07);
+        }
+
+        .assistant-page .assistant-header {
+            padding: 1.35rem 1.5rem 1.1rem;
+            border-bottom: 1px solid var(--assistant-border);
+        }
+
+        .assistant-page .assistant-back {
+            color: var(--assistant-green);
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .assistant-page .assistant-title {
+            margin: .75rem 0 .2rem;
+            font-size: clamp(1.8rem, 3vw, 2.4rem);
+            font-weight: 780;
+            letter-spacing: -.035em;
+        }
+
+        .assistant-page .assistant-context,
+        .assistant-page .section-help {
+            color: var(--assistant-muted);
+        }
+
+        .assistant-page .assistant-toolbar {
+            display: grid;
+            grid-template-columns: auto minmax(520px, 1fr) auto;
+            align-items: center;
+            gap: 1rem;
+            padding: .85rem 1.5rem;
+            border-bottom: 1px solid var(--assistant-border);
+        }
+
+        .assistant-page .primary-action,
+        .assistant-page .action-button {
+            min-height: 40px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 9px;
+            padding: .55rem .85rem;
+            font-size: .86rem;
+            font-weight: 680;
+            text-decoration: none;
+        }
+
+        .assistant-page .primary-action {
+            border: 1px solid var(--assistant-green);
+            background: var(--assistant-green);
+            color: #fff;
+        }
+
+        .assistant-page .action-button {
+            border: 1px solid var(--assistant-border);
+            background: #fff;
+            color: #344054;
+        }
+
+        .assistant-page .assistant-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            border: 1px solid var(--assistant-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .assistant-page .assistant-tab {
+            min-height: 43px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-right: 1px solid var(--assistant-border);
+            color: #344054;
+            font-size: .86rem;
+            font-weight: 650;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .assistant-page .assistant-tab:last-child {
+            border-right: 0;
+        }
+
+        .assistant-page .assistant-tab.active {
+            color: var(--assistant-green-dark);
+            background: var(--assistant-soft);
+            box-shadow: inset 0 0 0 1px var(--assistant-green);
+        }
+
+        .assistant-page .assistant-body {
+            padding: 1rem 1.25rem 1.4rem;
+            background: #f7f9fb;
+        }
+
+        .assistant-page .panel,
+        .assistant-page .suggestion-card,
+        .assistant-page .chat-panel {
+            border: 1px solid var(--assistant-border);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .assistant-page .metric-box {
+            min-height: 96px;
+            border: 1px solid var(--assistant-border);
+            border-radius: 12px;
+            padding: .9rem;
+            background: #fbfcfd;
+        }
+
+        .assistant-page .metric-label {
+            color: var(--assistant-muted);
+            font-size: .8rem;
+        }
+
+        .assistant-page .metric-value {
+            margin-top: .25rem;
+            font-size: 1.45rem;
+            font-weight: 780;
+        }
+
+        .assistant-page .category-title {
+            font-size: 1.05rem;
+            font-weight: 760;
+        }
+
+        .assistant-page .suggestion-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 1.1rem;
+        }
+
+        .assistant-page .suggestion-card.is-selected {
+            border-color: var(--assistant-green);
+            box-shadow: 0 0 0 2px rgba(23, 107, 85, .12);
+        }
+
+        .assistant-page .suggestion-check {
+            width: 1.15rem;
+            height: 1.15rem;
+        }
+
+        .assistant-page .meta-line {
+            color: #475467;
+            font-size: .84rem;
+        }
+
+        .assistant-page .pertinence {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: .3rem .58rem;
+            font-size: .73rem;
+            font-weight: 700;
+        }
+
+        .assistant-page .pertinence-FORTEMENT_RECOMMANDE {
+            background: #e7f7ef;
+            color: #116149;
+        }
+
+        .assistant-page .pertinence-RECOMMANDE {
+            background: #eef4ff;
+            color: #284d86;
+        }
+
+        .assistant-page .pertinence-OPTIONNEL {
+            background: #f4f4f5;
+            color: #52525b;
+        }
+
+        .assistant-page .selection-panel {
+            border-left: 4px solid var(--assistant-green);
+            background: var(--assistant-soft);
+        }
+
+        .assistant-page .filter-chip {
+            display: inline-flex;
+            flex-direction: column;
+            border: 1px solid var(--assistant-border);
+            border-radius: 9px;
+            padding: .55rem .7rem;
+            background: #fff;
+            font-size: .8rem;
+        }
+
+        .assistant-page .chat-panel {
+            position: sticky;
+            top: 1rem;
+        }
+
+        .assistant-page .chat-messages {
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .assistant-page .chat-message {
+            margin-bottom: .7rem;
+            border-radius: 11px;
+            padding: .75rem;
+            background: #f5f7fa;
+        }
+
+        .assistant-page .chat-user {
+            margin-left: 1.5rem;
+            background: var(--assistant-soft);
+        }
+
+        .assistant-page .chat-assistant {
+            margin-right: 1.5rem;
+        }
+
+        .assistant-page .impossible-item {
+            border: 1px solid var(--assistant-border);
+            border-radius: 11px;
+            padding: .9rem;
+            background: #fff;
+        }
+
+        @media (max-width: 1199.98px) {
+            .assistant-page .assistant-toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .assistant-page .chat-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .assistant-page {
+                width: calc(100vw - 1rem);
+            }
+
+            .assistant-page .assistant-tabs {
+                grid-template-columns: 1fr;
+            }
+
+            .assistant-page .assistant-tab {
+                border-right: 0;
+                border-bottom: 1px solid var(--assistant-border);
+            }
+
+            .assistant-page .assistant-tab:last-child {
+                border-bottom: 0;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="assistant-page">
+
+    <div class="assistant-frame">
+
+        <header class="assistant-header">
+
+            <a
+                href="{% url 'dashboards:liste' %}"
+                class="assistant-back"
+            >
+                ← Retour aux tableaux de bord
+            </a>
+
+            <h1 class="assistant-title">
+                Assistant intelligent
+            </h1>
+
+            <p class="assistant-context mb-0">
+                {{ tableau_bord.titre }}
+                · Jeu de données :
+                <strong>{{ tableau_bord.jeu_donnees.nom }}</strong>
+            </p>
+
+        </header>
+
+
+        <nav class="assistant-toolbar">
+
+            <a
+                href="{% url 'dashboards:ajouter_widget' tableau_bord.pk %}"
+                class="primary-action"
+            >
+                ＋ Ajouter manuellement
+            </a>
+
+            <div class="assistant-tabs">
+
+                <a
+                    href="{% url 'dashboards:detail' tableau_bord.pk %}"
+                    class="assistant-tab"
+                >
+                    Vue du tableau de bord
+                </a>
+
+                <a
+                    href="{% url 'ai_assistant:rapport' tableau_bord.pk %}"
+                    class="assistant-tab"
+                >
+                    Rapport statistique
+                </a>
+
+                <a
+                    href="{% url 'ai_assistant:espace_assiste' tableau_bord.pk %}"
+                    class="assistant-tab active"
+                >
+                    Assistant intelligent
+                </a>
+
+            </div>
+
+            <form
+                method="post"
+                action="{% url 'ai_assistant:reanalyser' tableau_bord.pk %}"
+                class="m-0"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="action-button"
+                >
+                    Relancer l’analyse
+                </button>
+            </form>
+
+        </nav>
+
+
+        <main class="assistant-body">
+
+            <div class="row g-3">
+
+                <div class="col-xl-8">
+
+                    <section class="panel p-4 mb-3">
+
+                        <div
+                            class="d-flex flex-wrap justify-content-between
+                                   align-items-start gap-3 mb-3"
+                        >
+
+                            <div>
+                                <h2 class="h5 mb-1">
+                                    Analyse automatique du jeu de données
+                                </h2>
+
+                                <p class="section-help mb-0">
+                                    Calculée avec Python et Pandas, sans Ollama.
+                                </p>
+                            </div>
+
+                            <span class="badge text-bg-light border">
+                                {{ analyse.get_statut_display }}
+                            </span>
+
+                        </div>
+
+                        <div class="row g-3">
+
+                            <div class="col-6 col-md-3">
+                                <div class="metric-box">
+                                    <div class="metric-label">Lignes</div>
+                                    <div class="metric-value">{{ analyse.schema.nombre_lignes }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <div class="metric-box">
+                                    <div class="metric-label">Colonnes</div>
+                                    <div class="metric-value">{{ analyse.schema.nombre_colonnes }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <div class="metric-box">
+                                    <div class="metric-label">Dimensions</div>
+                                    <div class="metric-value">{{ analyse.schema.dimensions|length }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <div class="metric-box">
+                                    <div class="metric-label">Mesures</div>
+                                    <div class="metric-value">{{ analyse.schema.mesures|length }}</div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    {% if selection_recommandee %}
+
+                        <section class="panel selection-panel p-4 mb-3">
+
+                            <div
+                                class="d-flex flex-column flex-lg-row
+                                       justify-content-between gap-3"
+                            >
+
+                                <div>
+                                    <h2 class="h5 mb-1">
+                                        Sélection équilibrée recommandée
+                                    </h2>
+
+                                    <p class="section-help mb-0">
+                                        {{ selection_recommandee|length }} widget(s)
+                                        choisis pour couvrir les indicateurs,
+                                        comparaisons, tendances et détails sans surcharger la page.
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-success"
+                                    id="selectionner-equilibre"
+                                >
+                                    Sélectionner cette composition
+                                </button>
+
+                            </div>
+
+                        </section>
+
+                    {% endif %}
+
+
+                    {% if filtres_recommandes %}
+
+                        <section class="panel p-4 mb-3">
+
+                            <h2 class="h5 mb-1">
+                                Filtres interactifs recommandés
+                            </h2>
+
+                            <p class="section-help">
+                                Les valeurs ne sont jamais inventées :
+                                l’utilisateur choisit la valeur au moment de configurer le widget.
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                {% for filtre in filtres_recommandes %}
+
+                                    <div class="filter-chip">
+                                        <strong>{{ filtre.colonne }}</strong>
+                                        <span class="section-help">
+                                            {{ filtre.raison }}
+                                        </span>
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </section>
+
+                    {% endif %}
+
+
+                    <section>
+
+                        <div
+                            class="d-flex flex-wrap justify-content-between
+                                   align-items-center gap-2 mb-3"
+                        >
+
+                            <div>
+                                <h2 class="h4 mb-1">
+                                    Catalogue de widgets pertinents
+                                </h2>
+
+                                <p class="section-help mb-0">
+                                    Chaque proposition utilise uniquement les colonnes du fichier.
+                                </p>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <form
+                                    id="form-selection-widgets"
+                                    method="post"
+                                    action="{% url 'ai_assistant:creer_selection_suggestions' tableau_bord.pk %}"
+                                    class="m-0"
+                                >
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-success"
+                                        id="creer-selection"
+                                        disabled
+                                    >
+                                        Créer la sélection
+                                        (<span id="nombre-selection">0</span>)
+                                    </button>
+                                </form>
+
+                                <form
+                                    method="post"
+                                    action="{% url 'ai_assistant:regenerer_suggestions' tableau_bord.pk %}"
+                                    class="m-0"
+                                >
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="action-button"
+                                    >
+                                        Régénérer les suggestions
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        {% for groupe in groupes_suggestions %}
+
+                            <section class="mb-4">
+
+                                <div
+                                    class="d-flex justify-content-between
+                                           align-items-center gap-2 mb-2"
+                                >
+
+                                    <h3 class="category-title mb-0">
+                                        {{ groupe.libelle }}
+                                    </h3>
+
+                                    <span class="badge text-bg-light border">
+                                        {{ groupe.nombre }} proposition(s)
+                                    </span>
+
+                                </div>
+
+
+                                <div class="row g-3">
+
+                                    {% for suggestion in groupe.suggestions %}
+
+                                        <div class="col-lg-6">
+
+                                            <article
+                                                class="suggestion-card"
+                                                data-suggestion-card
+                                            >
+
+                                                <div
+                                                    class="d-flex justify-content-between
+                                                           align-items-start gap-3 mb-2"
+                                                >
+
+                                                    <div class="d-flex gap-2">
+
+                                                        <input
+                                                            class="form-check-input suggestion-check mt-1"
+                                                            type="checkbox"
+                                                            name="suggestion_ids"
+                                                            value="{{ suggestion.pk }}"
+                                                            form="form-selection-widgets"
+                                                            data-suggestion-checkbox
+                                                            {% if suggestion.configuration.selection_equilibree %}
+                                                                data-equilibree="true"
+                                                            {% endif %}
+                                                            aria-label="Sélectionner {{ suggestion.configuration.titre }}"
+                                                        >
+
+                                                        <div>
+
+                                                            <div class="d-flex flex-wrap gap-1 mb-2">
+
+                                                                <span
+                                                                    class="pertinence
+                                                                           pertinence-{{ suggestion.configuration.pertinence }}"
+                                                                >
+                                                                    {{ suggestion.configuration.pertinence_libelle }}
+                                                                </span>
+
+                                                                <span class="badge text-bg-light border">
+                                                                    {{ suggestion.get_source_display }}
+                                                                </span>
+
+                                                                {% if suggestion.configuration.selection_equilibree %}
+                                                                    <span class="badge text-bg-success">
+                                                                        Sélection équilibrée
+                                                                    </span>
+                                                                {% endif %}
+
+                                                            </div>
+
+                                                            <h4 class="h5 mb-1">
+                                                                {{ suggestion.configuration.titre }}
+                                                            </h4>
+
+                                                            <div class="section-help">
+                                                                {{ suggestion.configuration.representation }}
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <span class="badge text-bg-light border">
+                                                        Score {{ suggestion.configuration.score }}
+                                                    </span>
+
+                                                </div>
+
+
+                                                <div class="meta-line mb-1">
+                                                    <strong>Dimension :</strong>
+                                                    {{ suggestion.configuration.colonne_categorie|default:"Aucune" }}
+                                                </div>
+
+                                                <div class="meta-line mb-1">
+                                                    <strong>Mesure :</strong>
+                                                    {{ suggestion.configuration.colonne_mesure|default:"Aucune" }}
+                                                </div>
+
+                                                <div class="meta-line mb-1">
+                                                    <strong>Série :</strong>
+                                                    {{ suggestion.configuration.colonne_serie|default:"Aucune" }}
+                                                </div>
+
+                                                <div class="meta-line mb-3">
+                                                    <strong>Agrégation :</strong>
+                                                    {{ suggestion.configuration.agregation_affichee|default:suggestion.configuration.agregation }}
+                                                </div>
+
+
+                                                <div class="mb-3">
+                                                    <div class="fw-semibold small mb-1">
+                                                        Objectif
+                                                    </div>
+                                                    <div class="small">
+                                                        {{ suggestion.configuration.objectif }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <div class="fw-semibold small mb-1">
+                                                        Pourquoi cette représentation ?
+                                                    </div>
+                                                    <div class="small">
+                                                        {{ suggestion.configuration.raison|default:suggestion.justification }}
+                                                    </div>
+                                                </div>
+
+
+                                                {% if suggestion.configuration.filtres_recommandes %}
+
+                                                    <div class="mb-3">
+                                                        <div class="fw-semibold small mb-1">
+                                                            Filtres possibles
+                                                        </div>
+                                                        <div class="d-flex flex-wrap gap-1">
+                                                            {% for filtre in suggestion.configuration.filtres_recommandes %}
+                                                                <span class="badge text-bg-light border">
+                                                                    {{ filtre.colonne }}
+                                                                </span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+
+                                                {% endif %}
+
+
+                                                {% if suggestion.configuration.alternatives %}
+
+                                                    <details class="small mb-3">
+                                                        <summary class="fw-semibold">
+                                                            Autres représentations possibles
+                                                        </summary>
+                                                        <ul class="mt-2 mb-0 ps-3">
+                                                            {% for alternative in suggestion.configuration.alternatives %}
+                                                                <li class="mb-1">
+                                                                    <strong>{{ alternative.libelle }}</strong>
+                                                                    {% if alternative.raison %}
+                                                                        — {{ alternative.raison }}
+                                                                    {% endif %}
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </details>
+
+                                                {% endif %}
+
+
+                                                <div class="d-flex flex-wrap gap-2 mt-auto">
+
+                                                    <form
+                                                        method="post"
+                                                        action="{% url 'ai_assistant:creer_depuis_suggestion' suggestion.pk %}"
+                                                        class="m-0"
+                                                    >
+                                                        {% csrf_token %}
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-success btn-sm"
+                                                        >
+                                                            Valider et créer
+                                                        </button>
+                                                    </form>
+
+                                                    <a
+                                                        href="{% url 'ai_assistant:modifier_suggestion' suggestion.pk %}"
+                                                        class="btn btn-outline-secondary btn-sm"
+                                                    >
+                                                        Modifier
+                                                    </a>
+
+                                                    <form
+                                                        method="post"
+                                                        action="{% url 'ai_assistant:supprimer_suggestion' suggestion.pk %}"
+                                                        class="m-0"
+                                                    >
+                                                        {% csrf_token %}
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-outline-danger btn-sm"
+                                                        >
+                                                            Supprimer
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+
+                                            </article>
+
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </section>
+
+                        {% empty %}
+
+                            <section class="panel p-4 text-center text-muted">
+                                Aucune suggestion disponible.
+                            </section>
+
+                        {% endfor %}
+
+                    </section>
+
+
+                    {% if widgets_non_disponibles %}
+
+                        <section class="panel p-4 mt-3">
+
+                            <h2 class="h5 mb-1">
+                                Widgets non créables avec la configuration actuelle
+                            </h2>
+
+                            <p class="section-help">
+                                La plateforme explique si la limite vient des données
+                                ou du moteur de visualisation, sans inventer de colonnes.
+                            </p>
+
+                            <div class="row g-2">
+
+                                {% for element in widgets_non_disponibles %}
+
+                                    <div class="col-md-6">
+                                        <div class="impossible-item h-100">
+                                            <div class="d-flex justify-content-between gap-2 mb-2">
+                                                <strong>{{ element.widget }}</strong>
+                                                <span class="badge text-bg-light border">
+                                                    {{ element.cause }}
+                                                </span>
+                                            </div>
+                                            <div class="small mb-2">
+                                                {{ element.raison }}
+                                            </div>
+                                            <div class="section-help">
+                                                Alternative : {{ element.alternative }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </section>
+
+                    {% endif %}
+
+                </div>
+
+
+                <aside class="col-xl-4">
+
+                    <section class="chat-panel p-4">
+
+                        <div
+                            class="d-flex justify-content-between
+                                   align-items-start gap-2 mb-3"
+                        >
+
+                            <div>
+                                <h2 class="h5 mb-1">
+                                    Assistant conversationnel
+                                </h2>
+                                <p class="section-help mb-0">
+                                    Propulsé par Ollama.
+                                </p>
+                            </div>
+
+                            <form
+                                method="post"
+                                action="{% url 'ai_assistant:effacer_conversation' tableau_bord.pk %}"
+                                class="m-0"
+                            >
+                                {% csrf_token %}
+                                <button
+                                    type="submit"
+                                    class="btn btn-link btn-sm text-decoration-none"
+                                >
+                                    Effacer
+                                </button>
+                            </form>
+
+                        </div>
+
+
+                        <div class="chat-messages mb-3">
+
+                            {% for message in conversation %}
+
+                                <div
+                                    class="chat-message
+                                           {% if message.role == 'user' %}
+                                               chat-user
+                                           {% else %}
+                                               chat-assistant
+                                           {% endif %}"
+                                >
+                                    <div class="small fw-semibold mb-1">
+                                        {% if message.role == "user" %}
+                                            Vous
+                                        {% else %}
+                                            Assistant
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="small">
+                                        {{ message.content }}
+                                    </div>
+
+                                    {% if message.suggestion_count %}
+                                        <div class="small mt-2 text-success">
+                                            {{ message.suggestion_count }} suggestion(s)
+                                            ajoutée(s) au catalogue.
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                            {% empty %}
+
+                                <div class="section-help py-3">
+                                    Exemples :
+                                    « Propose les meilleurs KPI »,
+                                    « Compare les régions »,
+                                    « Pourquoi une carte ne peut-elle pas être créée ? »
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'ai_assistant:envoyer_message' tableau_bord.pk %}"
+                        >
+                            {% csrf_token %}
+                            {{ form_chat.message }}
+
+                            {% for erreur in form_chat.message.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ erreur }}
+                                </div>
+                            {% endfor %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-success w-100 mt-3"
+                            >
+                                Envoyer la demande
+                            </button>
+                        </form>
+
+
+                        <div class="alert alert-light border small mt-3 mb-0">
+                            Ollama reçoit uniquement le schéma, les types,
+                            les relations et les statistiques déjà calculées.
+                            Les lignes complètes ne sont jamais transmises.
+                        </div>
+
+                    </section>
+
+                </aside>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                const cases = Array.from(
+                    document.querySelectorAll(
+                        "[data-suggestion-checkbox]"
+                    )
+                );
+
+                const compteur =
+                    document.getElementById(
+                        "nombre-selection"
+                    );
+
+                const boutonCreation =
+                    document.getElementById(
+                        "creer-selection"
+                    );
+
+                const boutonEquilibre =
+                    document.getElementById(
+                        "selectionner-equilibre"
+                    );
+
+                function actualiserSelection() {
+                    let nombre = 0;
+
+                    cases.forEach(
+                        function (caseWidget) {
+                            const carte =
+                                caseWidget.closest(
+                                    "[data-suggestion-card]"
+                                );
+
+                            if (caseWidget.checked) {
+                                nombre += 1;
+                                if (carte) {
+                                    carte.classList.add(
+                                        "is-selected"
+                                    );
+                                }
+                            } else if (carte) {
+                                carte.classList.remove(
+                                    "is-selected"
+                                );
+                            }
+                        }
+                    );
+
+                    if (compteur) {
+                        compteur.textContent = nombre;
+                    }
+
+                    if (boutonCreation) {
+                        boutonCreation.disabled =
+                            nombre === 0;
+                    }
+                }
+
+                cases.forEach(
+                    function (caseWidget) {
+                        caseWidget.addEventListener(
+                            "change",
+                            actualiserSelection
+                        );
+                    }
+                );
+
+                if (boutonEquilibre) {
+                    boutonEquilibre.addEventListener(
+                        "click",
+                        function () {
+                            cases.forEach(
+                                function (caseWidget) {
+                                    caseWidget.checked =
+                                        caseWidget.dataset.equilibree
+                                        === "true";
+                                }
+                            );
+
+                            actualiserSelection();
+                        }
+                    );
+                }
+
+                actualiserSelection();
+            }
+        );
+    </script>
+{% endblock %}

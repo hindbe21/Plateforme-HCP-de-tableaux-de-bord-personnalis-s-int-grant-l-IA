@@ -1,0 +1,1733 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Jeux de données | Plateforme HCP
+{% endblock %}
+
+
+{% block head %}
+    {{ block.super }}
+
+    <style>
+        .datasets-page {
+            max-width: 1420px;
+            margin: 0 auto;
+        }
+
+        .datasets-page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1.25rem;
+            margin-bottom: 1.55rem;
+        }
+
+        .datasets-page-kicker {
+            margin-bottom: .35rem;
+            color: var(--hcp-orange-dark);
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .datasets-page-title {
+            margin: 0;
+            color: var(--hcp-burgundy-dark);
+            font-size: clamp(1.9rem, 3vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -.04em;
+        }
+
+        .datasets-page-subtitle {
+            margin: .5rem 0 0;
+            color: var(--hcp-muted);
+            font-size: .94rem;
+        }
+
+        .datasets-import-button {
+            min-height: 44px;
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+        }
+
+
+        /* Résumé */
+
+        .datasets-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            overflow: hidden;
+            margin-bottom: 1.35rem;
+            border: 1px solid var(--hcp-border);
+            border-radius: 17px;
+            background: #fff;
+            box-shadow: var(--hcp-shadow-sm);
+        }
+
+        .datasets-summary-card {
+            min-height: 122px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.15rem 1.3rem;
+            border-right: 1px solid var(--hcp-border);
+        }
+
+        .datasets-summary-card:last-child {
+            border-right: 0;
+        }
+
+        .datasets-summary-icon {
+            width: 55px;
+            height: 55px;
+            display: inline-flex;
+            flex: 0 0 55px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.3rem;
+        }
+
+        .datasets-summary-icon.orange {
+            background: var(--hcp-orange-soft);
+            color: var(--hcp-orange-dark);
+        }
+
+        .datasets-summary-icon.green {
+            background: var(--hcp-green-soft);
+            color: var(--hcp-green);
+        }
+
+        .datasets-summary-icon.burgundy {
+            background: var(--hcp-burgundy-soft);
+            color: var(--hcp-burgundy);
+        }
+
+        .datasets-summary-icon.blue {
+            background: var(--hcp-blue-soft);
+            color: var(--hcp-blue);
+        }
+
+        .datasets-summary-value {
+            color: var(--hcp-burgundy-dark);
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -.04em;
+            line-height: 1.05;
+        }
+
+        .datasets-summary-label {
+            margin-top: .22rem;
+            color: var(--hcp-text);
+            font-size: .81rem;
+            font-weight: 700;
+        }
+
+        .datasets-summary-note {
+            margin-top: .18rem;
+            color: var(--hcp-muted);
+            font-size: .72rem;
+        }
+
+
+        /* Conteneur principal */
+
+        .datasets-shell {
+            overflow: hidden;
+            border: 1px solid var(--hcp-border);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: var(--hcp-shadow-sm);
+        }
+
+        .datasets-filter-bar {
+            display: grid;
+            grid-template-columns:
+                minmax(270px, 1.5fr)
+                minmax(150px, .65fr)
+                minmax(150px, .65fr)
+                minmax(180px, .75fr)
+                auto;
+            align-items: end;
+            gap: .75rem;
+            padding: 1.1rem;
+            border-bottom: 1px solid var(--hcp-border);
+            background: #fbfaf9;
+        }
+
+        .datasets-search {
+            position: relative;
+        }
+
+        .datasets-search i {
+            position: absolute;
+            top: 50%;
+            left: .9rem;
+            z-index: 2;
+            color: var(--hcp-muted);
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .datasets-search .form-control {
+            padding-left: 2.45rem;
+        }
+
+        .datasets-filter-field label {
+            display: block;
+            margin: 0 0 .32rem .12rem;
+            color: var(--hcp-muted);
+            font-size: .68rem;
+            font-weight: 650;
+        }
+
+        .datasets-filter-actions {
+            display: flex;
+            gap: .45rem;
+        }
+
+        .datasets-filter-actions .btn {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+        }
+
+
+        /* Tableau */
+
+        .datasets-table-wrap {
+            overflow-x: auto;
+        }
+
+        .datasets-table {
+            min-width: 980px;
+            margin: 0;
+        }
+
+        .datasets-table thead th {
+            padding: .78rem 1rem;
+            background: #faf9f8;
+            color: var(--hcp-text-soft);
+            font-size: .72rem;
+            font-weight: 750;
+            text-transform: none;
+            white-space: nowrap;
+        }
+
+        .datasets-table tbody td {
+            padding: .72rem 1rem;
+            vertical-align: middle;
+        }
+
+        .dataset-name-cell {
+            min-width: 310px;
+        }
+
+        .dataset-name-box {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+        }
+
+        .dataset-file-icon {
+            width: 39px;
+            height: 39px;
+            display: inline-flex;
+            flex: 0 0 39px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            background: var(--hcp-orange-soft);
+            color: var(--hcp-orange-dark);
+            font-size: 1rem;
+        }
+
+        .dataset-name-copy {
+            min-width: 0;
+        }
+
+        .dataset-name-link {
+            display: block;
+            max-width: 390px;
+            overflow: hidden;
+            color: var(--hcp-text);
+            font-size: .84rem;
+            font-weight: 720;
+            text-decoration: none;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dataset-name-link:hover {
+            color: var(--hcp-burgundy);
+        }
+
+        .dataset-size {
+            margin-top: .12rem;
+            color: var(--hcp-muted);
+            font-size: .7rem;
+        }
+
+        .dataset-format {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            background: #697180;
+            color: #fff;
+            padding: .25rem .48rem;
+            font-size: .66rem;
+            font-weight: 750;
+        }
+
+        .dataset-dimensions {
+            color: var(--hcp-text-soft);
+            font-size: .78rem;
+            white-space: nowrap;
+        }
+
+        .dataset-status {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            border-radius: 999px;
+            padding: .32rem .58rem;
+            font-size: .68rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .dataset-status.valid {
+            background: var(--hcp-green-soft);
+            color: var(--hcp-green-dark);
+        }
+
+        .dataset-status.invalid {
+            background: var(--hcp-danger-soft);
+            color: var(--hcp-danger);
+        }
+
+        .dataset-status.progress {
+            background: var(--hcp-orange-soft);
+            color: var(--hcp-orange-dark);
+        }
+
+        .dataset-date {
+            color: var(--hcp-text-soft);
+            font-size: .74rem;
+            white-space: nowrap;
+        }
+
+        .dataset-date i {
+            margin-right: .35rem;
+            color: var(--hcp-muted);
+        }
+
+        .dataset-actions {
+            min-width: 145px;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .dataset-view-button {
+            border: 1px solid rgba(116, 19, 63, .38);
+            background: #fff;
+            color: var(--hcp-burgundy);
+            padding: .42rem .78rem;
+        }
+
+        .dataset-view-button:hover {
+            border-color: var(--hcp-burgundy);
+            background: var(--hcp-burgundy);
+            color: #fff;
+        }
+
+        .dataset-menu-button {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: .35rem;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: var(--hcp-muted);
+        }
+
+        .dataset-menu-button:hover,
+        .dataset-menu-button[aria-expanded="true"] {
+            background: var(--hcp-burgundy-soft);
+            color: var(--hcp-burgundy);
+        }
+
+
+        /* Pied et pagination */
+
+        .datasets-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            min-height: 67px;
+            padding: .8rem 1rem;
+            border-top: 1px solid var(--hcp-border);
+            background: #fff;
+        }
+
+        .datasets-results-info {
+            color: var(--hcp-muted);
+            font-size: .75rem;
+        }
+
+        .datasets-pagination {
+            display: flex;
+            align-items: center;
+            gap: .32rem;
+        }
+
+        .datasets-page-button {
+            min-width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--hcp-border);
+            border-radius: 9px;
+            background: #fff;
+            color: var(--hcp-text-soft);
+            font-size: .76rem;
+            font-weight: 650;
+        }
+
+        .datasets-page-button:hover {
+            border-color: rgba(116, 19, 63, .30);
+            background: var(--hcp-burgundy-soft);
+            color: var(--hcp-burgundy);
+        }
+
+        .datasets-page-button.active {
+            border-color: var(--hcp-burgundy);
+            background: var(--hcp-burgundy);
+            color: #fff;
+        }
+
+        .datasets-page-button:disabled {
+            cursor: not-allowed;
+            opacity: .42;
+        }
+
+        .datasets-per-page {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--hcp-muted);
+            font-size: .72rem;
+        }
+
+        .datasets-per-page .form-select {
+            width: 78px;
+            min-height: 36px;
+            padding-top: .35rem;
+            padding-bottom: .35rem;
+            font-size: .75rem;
+        }
+
+
+        /* État vide */
+
+        .datasets-empty {
+            min-height: 350px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .datasets-empty-icon {
+            width: 68px;
+            height: 68px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            border-radius: 50%;
+            background: var(--hcp-orange-soft);
+            color: var(--hcp-orange-dark);
+            font-size: 1.7rem;
+        }
+
+        .datasets-empty h2 {
+            color: var(--hcp-burgundy-dark);
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .datasets-empty p {
+            max-width: 450px;
+            margin-bottom: 1.1rem;
+            color: var(--hcp-muted);
+            font-size: .84rem;
+        }
+
+
+        @media (max-width: 1199.98px) {
+            .datasets-filter-bar {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .datasets-search {
+                grid-column: 1 / -1;
+            }
+
+            .datasets-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .datasets-summary-card:nth-child(2) {
+                border-right: 0;
+            }
+
+            .datasets-summary-card:nth-child(-n+2) {
+                border-bottom: 1px solid var(--hcp-border);
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .datasets-page-header {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .datasets-filter-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .datasets-search {
+                grid-column: auto;
+            }
+
+            .datasets-filter-actions .btn:first-child {
+                flex: 1;
+            }
+
+            .datasets-footer {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .datasets-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .datasets-summary-card,
+            .datasets-summary-card:nth-child(2) {
+                border-right: 0;
+                border-bottom: 1px solid var(--hcp-border);
+            }
+
+            .datasets-summary-card:last-child {
+                border-bottom: 0;
+            }
+
+            .datasets-pagination {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="datasets-page">
+
+    <header class="datasets-page-header">
+
+        <div>
+
+            <div class="datasets-page-kicker">
+                Gestion des données
+            </div>
+
+            <h1 class="datasets-page-title">
+                Jeux de données
+            </h1>
+
+            <p class="datasets-page-subtitle">
+                Consultez et gérez les fichiers CSV et Excel importés.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'datasets:importer' %}"
+            class="btn btn-hcp-primary datasets-import-button"
+        >
+            <i class="bi bi-upload"></i>
+            Importer un jeu de données
+        </a>
+
+    </header>
+
+
+    <section class="datasets-summary">
+
+        <article class="datasets-summary-card">
+
+            <span class="datasets-summary-icon orange">
+                <i class="bi bi-database"></i>
+            </span>
+
+            <div>
+                <div
+                    class="datasets-summary-value"
+                    id="stat-total"
+                >
+                    {{ jeux_donnees|length }}
+                </div>
+
+                <div class="datasets-summary-label">
+                    Jeux de données
+                </div>
+
+                <div class="datasets-summary-note">
+                    au total
+                </div>
+            </div>
+
+        </article>
+
+
+        <article class="datasets-summary-card">
+
+            <span class="datasets-summary-icon green">
+                <i class="bi bi-stars"></i>
+            </span>
+
+            <div>
+                <div
+                    class="datasets-summary-value"
+                    id="stat-cleaned"
+                >
+                    0
+                </div>
+
+                <div class="datasets-summary-label">
+                    Versions nettoyées
+                </div>
+
+                <div
+                    class="datasets-summary-note"
+                    id="stat-cleaned-note"
+                >
+                    0 % du total
+                </div>
+            </div>
+
+        </article>
+
+
+        <article class="datasets-summary-card">
+
+            <span class="datasets-summary-icon burgundy">
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+            </span>
+
+            <div>
+                <div
+                    class="datasets-summary-value"
+                    id="stat-files"
+                >
+                    {{ jeux_donnees|length }}
+                </div>
+
+                <div class="datasets-summary-label">
+                    Fichiers CSV / Excel
+                </div>
+
+                <div
+                    class="datasets-summary-note"
+                    id="stat-files-note"
+                >
+                    CSV : 0 · Excel : 0
+                </div>
+            </div>
+
+        </article>
+
+
+        <article class="datasets-summary-card">
+
+            <span class="datasets-summary-icon blue">
+                <i class="bi bi-calendar3"></i>
+            </span>
+
+            <div>
+                <div
+                    class="datasets-summary-value"
+                    id="stat-recent"
+                >
+                    0
+                </div>
+
+                <div class="datasets-summary-label">
+                    Importations récentes
+                </div>
+
+                <div class="datasets-summary-note">
+                    au cours des 7 derniers jours
+                </div>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <section class="datasets-shell">
+
+        <div class="datasets-filter-bar">
+
+            <div class="datasets-search">
+
+                <i class="bi bi-search"></i>
+
+                <input
+                    type="search"
+                    id="dataset-search"
+                    class="form-control"
+                    placeholder="Rechercher un jeu de données..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="datasets-filter-field">
+
+                <label for="dataset-format">
+                    Format
+                </label>
+
+                <select
+                    id="dataset-format"
+                    class="form-select"
+                >
+                    <option value="">
+                        Tous
+                    </option>
+
+                    <option value="csv">
+                        CSV
+                    </option>
+
+                    <option value="excel">
+                        Excel
+                    </option>
+
+                    <option value="xlsx">
+                        XLSX
+                    </option>
+                </select>
+
+            </div>
+
+
+            <div class="datasets-filter-field">
+
+                <label for="dataset-status">
+                    Statut
+                </label>
+
+                <select
+                    id="dataset-status"
+                    class="form-select"
+                >
+                    <option value="">
+                        Tous
+                    </option>
+
+                    <option value="valide">
+                        Valide
+                    </option>
+
+                    <option value="invalide">
+                        Invalide
+                    </option>
+
+                    <option value="en_cours">
+                        En cours
+                    </option>
+                </select>
+
+            </div>
+
+
+            <div class="datasets-filter-field">
+
+                <label for="dataset-date">
+                    Date d’importation
+                </label>
+
+                <input
+                    type="date"
+                    id="dataset-date"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="datasets-filter-actions">
+
+                <button
+                    type="button"
+                    id="dataset-filter-button"
+                    class="btn btn-hcp-primary"
+                >
+                    <i class="bi bi-funnel"></i>
+                    Filtrer
+                </button>
+
+                <button
+                    type="button"
+                    id="dataset-reset-button"
+                    class="btn btn-outline-secondary"
+                    title="Réinitialiser les filtres"
+                >
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="datasets-table-wrap">
+
+            <table class="table datasets-table">
+
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Format</th>
+                        <th>Dimensions</th>
+                        <th>Statut</th>
+                        <th>Date d’importation</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+
+
+                <tbody id="datasets-table-body">
+
+                    {% for jeu in jeux_donnees %}
+
+                        <tr
+                            class="dataset-row"
+                            data-name="{{ jeu.nom|lower }}"
+                            data-format="{{ jeu.format|default:'csv'|lower }}"
+                            data-status="{{ jeu.statut|default:'valide'|lower }}"
+                            data-date="{{ jeu.date_importation|date:'Y-m-d' }}"
+                            data-cleaned="{% if jeu.source_jeu_donnees %}1{% else %}0{% endif %}"
+                        >
+
+                            <td class="dataset-name-cell">
+
+                                <div class="dataset-name-box">
+
+                                    <span class="dataset-file-icon">
+                                        <i class="bi bi-file-earmark"></i>
+                                    </span>
+
+                                    <div class="dataset-name-copy">
+
+                                        <a
+                                            href="{% url 'datasets:detail' jeu.pk %}"
+                                            class="dataset-name-link"
+                                            title="{{ jeu.nom }}"
+                                        >
+                                            {{ jeu.nom }}
+                                        </a>
+
+                                        <div class="dataset-size">
+
+                                            {% if jeu.taille_fichier %}
+                                                {{ jeu.taille_fichier|filesizeformat }}
+                                            {% else %}
+                                                Taille non disponible
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="dataset-format">
+                                    {{ jeu.format|default:"CSV"|upper }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="dataset-dimensions">
+                                    {{ jeu.nombre_lignes|default:"0" }}
+                                    lignes ×
+                                    {{ jeu.nombre_colonnes|default:"0" }}
+                                    colonnes
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                {% if jeu.statut == "INVALIDE" or jeu.statut == "invalide" %}
+
+                                    <span class="dataset-status invalid">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        Invalide
+                                    </span>
+
+                                {% elif jeu.statut == "EN_COURS" or jeu.statut == "en_cours" %}
+
+                                    <span class="dataset-status progress">
+                                        <i class="bi bi-clock-fill"></i>
+                                        En cours
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="dataset-status valid">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Valide
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="dataset-date">
+
+                                    <i class="bi bi-calendar3"></i>
+
+                                    {% if jeu.date_importation %}
+                                        {{ jeu.date_importation|date:"d/m/Y à H:i" }}
+                                    {% else %}
+                                        Date indisponible
+                                    {% endif %}
+
+                                </div>
+
+                            </td>
+
+
+                            <td class="dataset-actions">
+
+                                <a
+                                    href="{% url 'datasets:detail' jeu.pk %}"
+                                    class="btn dataset-view-button"
+                                >
+                                    Consulter
+                                </a>
+
+
+                                <div class="dropdown d-inline-block">
+
+                                    <button
+                                        type="button"
+                                        class="dataset-menu-button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        aria-label="Actions pour {{ jeu.nom }}"
+                                    >
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+
+                                        <li>
+                                            <a
+                                                href="{% url 'datasets:detail' jeu.pk %}"
+                                                class="dropdown-item"
+                                            >
+                                                <i class="bi bi-eye"></i>
+                                                Consulter
+                                            </a>
+                                        </li>
+
+
+                                        <li>
+                                            <a
+                                                href="{% url 'datasets:modifier' jeu.pk %}"
+                                                class="dropdown-item"
+                                            >
+                                                <i class="bi bi-pencil"></i>
+                                                Modifier
+                                            </a>
+                                        </li>
+
+
+                                        <li>
+                                            <a
+                                                href="{% url 'datasets:nettoyer' jeu.pk %}"
+                                                class="dropdown-item"
+                                            >
+                                                <i class="bi bi-stars"></i>
+                                                Nettoyer les données
+                                            </a>
+                                        </li>
+
+
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+
+
+                                        <li>
+                                            <a
+                                                href="{% url 'datasets:supprimer' jeu.pk %}"
+                                                class="dropdown-item text-danger"
+                                            >
+                                                <i class="bi bi-trash"></i>
+                                                Supprimer
+                                            </a>
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr id="server-empty-row">
+
+                            <td
+                                colspan="6"
+                                class="text-center py-5"
+                            >
+                                Aucun jeu de données n’a encore été importé.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div
+            class="datasets-empty"
+            id="datasets-filter-empty"
+        >
+
+            <span class="datasets-empty-icon">
+                <i class="bi bi-search"></i>
+            </span>
+
+            <h2>
+                Aucun résultat trouvé
+            </h2>
+
+            <p>
+                Aucun jeu de données ne correspond aux critères sélectionnés.
+                Modifiez ou réinitialisez les filtres.
+            </p>
+
+            <button
+                type="button"
+                class="btn btn-outline-secondary"
+                id="dataset-empty-reset"
+            >
+                Réinitialiser les filtres
+            </button>
+
+        </div>
+
+
+        <footer
+            class="datasets-footer"
+            id="datasets-footer"
+        >
+
+            <div
+                class="datasets-results-info"
+                id="datasets-results-info"
+            >
+                0 résultat
+            </div>
+
+
+            <div
+                class="datasets-pagination"
+                id="datasets-pagination"
+            ></div>
+
+
+            <div class="datasets-per-page">
+
+                <select
+                    id="datasets-per-page"
+                    class="form-select"
+                    aria-label="Nombre de résultats par page"
+                >
+                    <option value="10" selected>
+                        10
+                    </option>
+
+                    <option value="20">
+                        20
+                    </option>
+
+                    <option value="50">
+                        50
+                    </option>
+                </select>
+
+                <span>
+                    par page
+                </span>
+
+            </div>
+
+        </footer>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                const rows = Array.from(
+                    document.querySelectorAll(
+                        ".dataset-row"
+                    )
+                );
+
+                const searchInput =
+                    document.getElementById(
+                        "dataset-search"
+                    );
+
+                const formatSelect =
+                    document.getElementById(
+                        "dataset-format"
+                    );
+
+                const statusSelect =
+                    document.getElementById(
+                        "dataset-status"
+                    );
+
+                const dateInput =
+                    document.getElementById(
+                        "dataset-date"
+                    );
+
+                const filterButton =
+                    document.getElementById(
+                        "dataset-filter-button"
+                    );
+
+                const resetButton =
+                    document.getElementById(
+                        "dataset-reset-button"
+                    );
+
+                const emptyResetButton =
+                    document.getElementById(
+                        "dataset-empty-reset"
+                    );
+
+                const perPageSelect =
+                    document.getElementById(
+                        "datasets-per-page"
+                    );
+
+                const pagination =
+                    document.getElementById(
+                        "datasets-pagination"
+                    );
+
+                const resultsInfo =
+                    document.getElementById(
+                        "datasets-results-info"
+                    );
+
+                const filterEmpty =
+                    document.getElementById(
+                        "datasets-filter-empty"
+                    );
+
+                const tableWrap =
+                    document.querySelector(
+                        ".datasets-table-wrap"
+                    );
+
+                const footer =
+                    document.getElementById(
+                        "datasets-footer"
+                    );
+
+                const serverEmpty =
+                    document.getElementById(
+                        "server-empty-row"
+                    );
+
+                let currentPage = 1;
+                let filteredRows = rows.slice();
+
+
+                function normalize(value) {
+                    return String(
+                        value || ""
+                    )
+                    .normalize("NFD")
+                    .replace(
+                        /[\u0300-\u036f]/g,
+                        ""
+                    )
+                    .toLowerCase()
+                    .trim();
+                }
+
+
+                function updateStatistics() {
+                    const total = rows.length;
+
+                    const cleaned = rows.filter(
+                        function (row) {
+                            return (
+                                row.dataset.cleaned
+                                === "1"
+                            );
+                        }
+                    ).length;
+
+                    const csv = rows.filter(
+                        function (row) {
+                            return (
+                                normalize(
+                                    row.dataset.format
+                                ).includes(
+                                    "csv"
+                                )
+                            );
+                        }
+                    ).length;
+
+                    const excel = rows.filter(
+                        function (row) {
+                            const format = normalize(
+                                row.dataset.format
+                            );
+
+                            return (
+                                format.includes(
+                                    "excel"
+                                )
+                                || format.includes(
+                                    "xlsx"
+                                )
+                                || format.includes(
+                                    "xls"
+                                )
+                            );
+                        }
+                    ).length;
+
+                    const today = new Date();
+
+                    const sevenDaysAgo =
+                        new Date();
+
+                    sevenDaysAgo.setDate(
+                        today.getDate() - 7
+                    );
+
+                    const recent = rows.filter(
+                        function (row) {
+                            if (!row.dataset.date) {
+                                return false;
+                            }
+
+                            const date = new Date(
+                                row.dataset.date
+                                + "T00:00:00"
+                            );
+
+                            return (
+                                date >= sevenDaysAgo
+                                && date <= today
+                            );
+                        }
+                    ).length;
+
+                    document.getElementById(
+                        "stat-total"
+                    ).textContent = total;
+
+                    document.getElementById(
+                        "stat-cleaned"
+                    ).textContent = cleaned;
+
+                    document.getElementById(
+                        "stat-cleaned-note"
+                    ).textContent =
+                        (
+                            total
+                            ? Math.round(
+                                cleaned
+                                / total
+                                * 100
+                            )
+                            : 0
+                        )
+                        + " % du total";
+
+                    document.getElementById(
+                        "stat-files"
+                    ).textContent = (
+                        csv + excel
+                    );
+
+                    document.getElementById(
+                        "stat-files-note"
+                    ).textContent =
+                        "CSV : "
+                        + csv
+                        + " · Excel : "
+                        + excel;
+
+                    document.getElementById(
+                        "stat-recent"
+                    ).textContent = recent;
+                }
+
+
+                function applyFilters() {
+                    const query = normalize(
+                        searchInput.value
+                    );
+
+                    const format = normalize(
+                        formatSelect.value
+                    );
+
+                    const status = normalize(
+                        statusSelect.value
+                    );
+
+                    const selectedDate =
+                        dateInput.value;
+
+                    filteredRows = rows.filter(
+                        function (row) {
+                            const rowName = normalize(
+                                row.dataset.name
+                            );
+
+                            const rowFormat = normalize(
+                                row.dataset.format
+                            );
+
+                            const rowStatus = normalize(
+                                row.dataset.status
+                            );
+
+                            const rowDate =
+                                row.dataset.date || "";
+
+                            const matchesSearch = (
+                                !query
+                                || rowName.includes(
+                                    query
+                                )
+                            );
+
+                            const matchesFormat = (
+                                !format
+                                || rowFormat.includes(
+                                    format
+                                )
+                                || (
+                                    format === "excel"
+                                    && (
+                                        rowFormat.includes(
+                                            "xlsx"
+                                        )
+                                        || rowFormat.includes(
+                                            "xls"
+                                        )
+                                    )
+                                )
+                            );
+
+                            const matchesStatus = (
+                                !status
+                                || rowStatus === status
+                            );
+
+                            const matchesDate = (
+                                !selectedDate
+                                || rowDate === selectedDate
+                            );
+
+                            return (
+                                matchesSearch
+                                && matchesFormat
+                                && matchesStatus
+                                && matchesDate
+                            );
+                        }
+                    );
+
+                    currentPage = 1;
+                    renderPage();
+                }
+
+
+                function resetFilters() {
+                    searchInput.value = "";
+                    formatSelect.value = "";
+                    statusSelect.value = "";
+                    dateInput.value = "";
+                    filteredRows = rows.slice();
+                    currentPage = 1;
+                    renderPage();
+                }
+
+
+                function createPageButton(
+                    label,
+                    page,
+                    active,
+                    disabled,
+                    iconClass
+                ) {
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+                    button.type = "button";
+
+                    button.className =
+                        "datasets-page-button"
+                        + (
+                            active
+                            ? " active"
+                            : ""
+                        );
+
+                    button.disabled = Boolean(
+                        disabled
+                    );
+
+                    if (iconClass) {
+                        button.innerHTML =
+                            '<i class="bi '
+                            + iconClass
+                            + '"></i>';
+                    } else {
+                        button.textContent =
+                            label;
+                    }
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+                            currentPage = page;
+                            renderPage();
+
+                            document.querySelector(
+                                ".datasets-shell"
+                            ).scrollIntoView(
+                                {
+                                    behavior:
+                                    "smooth",
+
+                                    block:
+                                    "start"
+                                }
+                            );
+                        }
+                    );
+
+                    return button;
+                }
+
+
+                function renderPagination(
+                    pageCount
+                ) {
+                    pagination.innerHTML = "";
+
+                    if (pageCount <= 1) {
+                        return;
+                    }
+
+                    pagination.appendChild(
+                        createPageButton(
+                            "",
+                            Math.max(
+                                1,
+                                currentPage - 1
+                            ),
+                            false,
+                            currentPage === 1,
+                            "bi-chevron-left"
+                        )
+                    );
+
+                    for (
+                        let page = 1;
+                        page <= pageCount;
+                        page += 1
+                    ) {
+                        if (
+                            page === 1
+                            || page === pageCount
+                            || Math.abs(
+                                page - currentPage
+                            ) <= 2
+                        ) {
+                            pagination.appendChild(
+                                createPageButton(
+                                    String(page),
+                                    page,
+                                    page === currentPage,
+                                    false,
+                                    ""
+                                )
+                            );
+                        } else if (
+                            page === currentPage - 3
+                            || page === currentPage + 3
+                        ) {
+                            const dots =
+                                document.createElement(
+                                    "span"
+                                );
+
+                            dots.textContent = "…";
+                            dots.className =
+                                "px-1 text-muted";
+
+                            pagination.appendChild(
+                                dots
+                            );
+                        }
+                    }
+
+                    pagination.appendChild(
+                        createPageButton(
+                            "",
+                            Math.min(
+                                pageCount,
+                                currentPage + 1
+                            ),
+                            false,
+                            currentPage === pageCount,
+                            "bi-chevron-right"
+                        )
+                    );
+                }
+
+
+                function renderPage() {
+                    const perPage = Number(
+                        perPageSelect.value
+                    ) || 10;
+
+                    const total =
+                        filteredRows.length;
+
+                    const pageCount = Math.max(
+                        1,
+                        Math.ceil(
+                            total / perPage
+                        )
+                    );
+
+                    if (currentPage > pageCount) {
+                        currentPage = pageCount;
+                    }
+
+                    const start =
+                        (
+                            currentPage - 1
+                        )
+                        * perPage;
+
+                    const end = Math.min(
+                        start + perPage,
+                        total
+                    );
+
+                    rows.forEach(
+                        function (row) {
+                            row.style.display =
+                                "none";
+                        }
+                    );
+
+                    filteredRows
+                        .slice(
+                            start,
+                            end
+                        )
+                        .forEach(
+                            function (row) {
+                                row.style.display =
+                                    "";
+                            }
+                        );
+
+                    const noResults =
+                        total === 0;
+
+                    if (serverEmpty) {
+                        serverEmpty.style.display =
+                            rows.length === 0
+                            ? ""
+                            : "none";
+                    }
+
+                    filterEmpty.style.display =
+                        (
+                            noResults
+                            && rows.length > 0
+                        )
+                        ? "flex"
+                        : "none";
+
+                    tableWrap.style.display =
+                        (
+                            noResults
+                            && rows.length > 0
+                        )
+                        ? "none"
+                        : "block";
+
+                    footer.style.display =
+                        rows.length
+                        ? "flex"
+                        : "none";
+
+                    if (!total) {
+                        resultsInfo.textContent =
+                            "Aucun résultat";
+                    } else {
+                        resultsInfo.textContent =
+                            "Affichage de "
+                            + (
+                                start + 1
+                            )
+                            + " à "
+                            + end
+                            + " sur "
+                            + total
+                            + " résultat"
+                            + (
+                                total > 1
+                                ? "s"
+                                : ""
+                            );
+                    }
+
+                    renderPagination(
+                        pageCount
+                    );
+                }
+
+
+                filterButton.addEventListener(
+                    "click",
+                    applyFilters
+                );
+
+                searchInput.addEventListener(
+                    "input",
+                    applyFilters
+                );
+
+                formatSelect.addEventListener(
+                    "change",
+                    applyFilters
+                );
+
+                statusSelect.addEventListener(
+                    "change",
+                    applyFilters
+                );
+
+                dateInput.addEventListener(
+                    "change",
+                    applyFilters
+                );
+
+                resetButton.addEventListener(
+                    "click",
+                    resetFilters
+                );
+
+                emptyResetButton.addEventListener(
+                    "click",
+                    resetFilters
+                );
+
+                perPageSelect.addEventListener(
+                    "change",
+                    function () {
+                        currentPage = 1;
+                        renderPage();
+                    }
+                );
+
+                updateStatistics();
+                renderPage();
+            }
+        );
+    </script>
+{% endblock %}

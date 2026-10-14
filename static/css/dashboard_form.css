@@ -1,0 +1,221 @@
+.dashboard-form-page {
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+.dashboard-form-back {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 1.6rem;
+    color: var(--hcp-burgundy);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.dashboard-form-back:hover {
+    color: var(--hcp-orange-dark);
+}
+
+.dashboard-form-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.8rem;
+}
+
+.dashboard-form-kicker {
+    margin-bottom: .45rem;
+    color: var(--hcp-orange-dark);
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.dashboard-form-title {
+    margin: 0;
+    color: var(--hcp-burgundy-dark);
+    font-size: clamp(2rem, 4vw, 2.65rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+}
+
+.dashboard-form-subtitle {
+    max-width: 720px;
+    margin: .65rem 0 0;
+    color: var(--hcp-muted);
+    font-size: .97rem;
+}
+
+.dashboard-form-step {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+    flex: 0 0 auto;
+    border: 1px solid var(--hcp-border);
+    border-radius: 999px;
+    background: #fff;
+    padding: .45rem .8rem .45rem .5rem;
+    color: var(--hcp-text-soft);
+    font-size: .78rem;
+    font-weight: 700;
+    box-shadow: var(--hcp-shadow-sm);
+}
+
+.dashboard-form-step-number {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--hcp-burgundy);
+    color: #fff;
+}
+
+.dashboard-form-card,
+.dashboard-form-help {
+    border: 1px solid var(--hcp-border);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--hcp-shadow);
+}
+
+.dashboard-form-card {
+    padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.dashboard-form-card-heading {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    margin-bottom: 1.6rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid var(--hcp-border);
+}
+
+.dashboard-form-card-icon {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    flex: 0 0 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: var(--hcp-burgundy-soft);
+    color: var(--hcp-burgundy);
+    font-size: 1.2rem;
+}
+
+.dashboard-form-card-heading h2 {
+    margin: 0 0 .2rem;
+    color: var(--hcp-burgundy-dark);
+    font-size: 1.08rem;
+    font-weight: 800;
+}
+
+.dashboard-form-card-heading p {
+    margin: 0;
+    color: var(--hcp-muted);
+    font-size: .82rem;
+}
+
+.dashboard-form-card .form-control,
+.dashboard-form-card .form-select {
+    min-height: 48px;
+}
+
+.dashboard-form-card textarea.form-control {
+    min-height: 126px;
+    resize: vertical;
+}
+
+.dashboard-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .7rem;
+    padding-top: .45rem;
+}
+
+.dashboard-form-help {
+    position: sticky;
+    top: 96px;
+    padding: 1.45rem;
+}
+
+.dashboard-form-help-icon {
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    background: var(--hcp-orange-soft);
+    color: var(--hcp-orange-dark);
+    font-size: 1.35rem;
+}
+
+.dashboard-form-help h2 {
+    margin-bottom: 1.25rem;
+    color: var(--hcp-burgundy-dark);
+    font-size: 1.08rem;
+    font-weight: 800;
+}
+
+.dashboard-form-help-item {
+    display: flex;
+    gap: .75rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--hcp-border);
+}
+
+.dashboard-form-help-item > span {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    flex: 0 0 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--hcp-burgundy-soft);
+    color: var(--hcp-burgundy);
+    font-size: .76rem;
+    font-weight: 800;
+}
+
+.dashboard-form-help-item strong {
+    display: block;
+    margin-bottom: .2rem;
+    color: var(--hcp-text);
+    font-size: .85rem;
+}
+
+.dashboard-form-help-item p {
+    margin: 0;
+    color: var(--hcp-muted);
+    font-size: .78rem;
+}
+
+@media (max-width: 1199.98px) {
+    .dashboard-form-help {
+        position: static;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .dashboard-form-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .dashboard-form-step {
+        display: none;
+    }
+
+    .dashboard-form-actions .btn {
+        width: 100%;
+    }
+}

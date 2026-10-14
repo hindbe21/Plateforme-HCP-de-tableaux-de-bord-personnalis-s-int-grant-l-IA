@@ -1,0 +1,980 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Rapport statistique intelligent | Plateforme HCP
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+
+    <style>
+        .smart-report {
+            --report-primary: #176b55;
+            --report-primary-dark: #105443;
+            --report-soft: #edf7f3;
+            --report-text: #172033;
+            --report-muted: #667085;
+            --report-border: #dfe4ea;
+            --report-bg: #f7f9fb;
+            --report-warning: #a15c00;
+            --report-danger: #b42318;
+
+            width: min(1460px, calc(100vw - 2rem));
+            margin-left: 50%;
+            transform: translateX(-50%);
+            color: var(--report-text);
+        }
+
+        .smart-report .report-frame {
+            overflow: hidden;
+            border: 1px solid var(--report-border);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 14px 40px rgba(16, 24, 40, .07);
+        }
+
+        .smart-report .report-header {
+            padding: 1.4rem 1.5rem 1.1rem;
+            border-bottom: 1px solid var(--report-border);
+        }
+
+        .smart-report .report-back {
+            color: var(--report-primary);
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .smart-report .report-title {
+            margin: .8rem 0 .2rem;
+            font-size: clamp(1.8rem, 3vw, 2.45rem);
+            font-weight: 780;
+            letter-spacing: -.035em;
+        }
+
+        .smart-report .report-context {
+            margin: 0;
+            color: var(--report-muted);
+        }
+
+        .smart-report .report-toolbar {
+            display: grid;
+            grid-template-columns: minmax(480px, 1fr) auto;
+            align-items: center;
+            gap: 1rem;
+            padding: .9rem 1.5rem;
+            border-bottom: 1px solid var(--report-border);
+            background: #fff;
+        }
+
+        .smart-report .report-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            max-width: 760px;
+            border: 1px solid var(--report-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .smart-report .report-tab {
+            min-height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: .55rem .7rem;
+            border-right: 1px solid var(--report-border);
+            background: #fff;
+            color: #344054;
+            font-size: .88rem;
+            font-weight: 650;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .smart-report .report-tab:last-child {
+            border-right: 0;
+        }
+
+        .smart-report .report-tab:hover {
+            background: #f6f7f9;
+        }
+
+        .smart-report .report-tab.active {
+            color: var(--report-primary-dark);
+            background: var(--report-soft);
+            box-shadow: inset 0 0 0 1px var(--report-primary);
+        }
+
+        .smart-report .report-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+
+        .smart-report .action-btn {
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--report-border);
+            border-radius: 9px;
+            background: #fff;
+            color: #344054;
+            padding: .55rem .8rem;
+            font-size: .86rem;
+            font-weight: 680;
+            text-decoration: none;
+        }
+
+        .smart-report .action-btn:hover {
+            border-color: #b9c1ca;
+            background: #f6f7f9;
+            color: var(--report-text);
+        }
+
+        .smart-report .action-btn.primary {
+            border-color: var(--report-primary);
+            background: var(--report-primary);
+            color: #fff;
+        }
+
+        .smart-report .action-btn.primary:hover {
+            border-color: var(--report-primary-dark);
+            background: var(--report-primary-dark);
+            color: #fff;
+        }
+
+        .smart-report .report-body {
+            padding: 1rem 1.25rem 1.35rem;
+            background: var(--report-bg);
+        }
+
+        .smart-report .report-card,
+        .smart-report .metric-card {
+            border: 1px solid var(--report-border);
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .smart-report .metric-card {
+            min-height: 110px;
+            padding: 1rem;
+        }
+
+        .smart-report .metric-label {
+            color: var(--report-muted);
+            font-size: .83rem;
+        }
+
+        .smart-report .metric-value {
+            margin-top: .3rem;
+            font-size: 1.65rem;
+            font-weight: 780;
+        }
+
+        .smart-report .section-title {
+            margin: 0 0 .25rem;
+            font-size: 1.2rem;
+            font-weight: 760;
+        }
+
+        .smart-report .section-help {
+            color: var(--report-muted);
+            font-size: .86rem;
+        }
+
+        .smart-report .widget-heading {
+            font-size: 1.08rem;
+            font-weight: 760;
+        }
+
+        .smart-report .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--report-border);
+            border-radius: 999px;
+            background: #f8f9fb;
+            color: #475467;
+            padding: .35rem .6rem;
+            font-size: .76rem;
+            font-weight: 650;
+        }
+
+        .smart-report .quality-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: .35rem .62rem;
+            font-size: .76rem;
+            font-weight: 700;
+        }
+
+        .smart-report .quality-BON {
+            background: #eaf7f1;
+            color: #116149;
+        }
+
+        .smart-report .quality-ATTENTION {
+            background: #fff5df;
+            color: var(--report-warning);
+        }
+
+        .smart-report .quality-A_REVOIR {
+            background: #fff0ee;
+            color: var(--report-danger);
+        }
+
+        .smart-report .analysis-box {
+            height: 100%;
+            border: 1px solid var(--report-border);
+            border-radius: 11px;
+            background: #fbfcfd;
+            padding: 1rem;
+        }
+
+        .smart-report .ranking-table th,
+        .smart-report .data-quality-table th {
+            color: var(--report-muted);
+            font-size: .75rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .smart-report .ranking-table td,
+        .smart-report .data-quality-table td {
+            vertical-align: middle;
+        }
+
+        .smart-report .report-note {
+            border-left: 4px solid var(--report-primary);
+            border-radius: 8px;
+            background: var(--report-soft);
+            padding: .9rem 1rem;
+        }
+
+        .smart-report .warning-note {
+            border-left-color: #d28b00;
+            background: #fff9eb;
+        }
+
+        .smart-report .report-list li {
+            margin-bottom: .55rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .smart-report .report-toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .smart-report .report-tabs {
+                max-width: none;
+            }
+
+            .smart-report .report-actions {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .smart-report {
+                width: calc(100vw - 1rem);
+            }
+
+            .smart-report .report-tabs {
+                grid-template-columns: 1fr;
+            }
+
+            .smart-report .report-tab {
+                border-right: 0;
+                border-bottom: 1px solid var(--report-border);
+            }
+
+            .smart-report .report-tab:last-child {
+                border-bottom: 0;
+            }
+
+            .smart-report .action-btn {
+                flex: 1 1 auto;
+            }
+        }
+
+        @media print {
+            body {
+                background: #fff !important;
+            }
+
+            nav.navbar,
+            .no-print,
+            .alert-dismissible,
+            .btn-close {
+                display: none !important;
+            }
+
+            main.container {
+                width: 100% !important;
+                max-width: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .smart-report {
+                width: 100% !important;
+                margin: 0 !important;
+                transform: none !important;
+            }
+
+            .smart-report .report-frame {
+                border: 0 !important;
+                box-shadow: none !important;
+            }
+
+            .smart-report .report-body {
+                background: #fff !important;
+                padding: 0 !important;
+            }
+
+            .smart-report .report-card,
+            .smart-report .metric-card {
+                break-inside: avoid;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="smart-report">
+
+    <div class="report-frame">
+
+        <header class="report-header no-print">
+
+            <a
+                href="{% url 'dashboards:liste' %}"
+                class="report-back"
+            >
+                ← Retour aux tableaux de bord
+            </a>
+
+            <h1 class="report-title">
+                Rapport statistique intelligent
+            </h1>
+
+            <p class="report-context">
+                {{ tableau_bord.titre }}
+                · Jeu de données :
+                <strong>{{ tableau_bord.jeu_donnees.nom }}</strong>
+            </p>
+
+        </header>
+
+
+        <div class="report-toolbar no-print">
+
+            <nav class="report-tabs">
+
+                <a
+                    href="{% url 'dashboards:detail' tableau_bord.pk %}"
+                    class="report-tab"
+                >
+                    Vue du tableau de bord
+                </a>
+
+                <a
+                    href="{% url 'ai_assistant:rapport' tableau_bord.pk %}"
+                    class="report-tab active"
+                >
+                    Rapport statistique
+                </a>
+
+                <a
+                    href="{% url 'ai_assistant:espace_assiste' tableau_bord.pk %}"
+                    class="report-tab"
+                >
+                    Assistant intelligent
+                </a>
+
+            </nav>
+
+
+            <div class="report-actions">
+
+                {% if rapport %}
+
+                    <a
+                        href="{% url 'ai_assistant:modifier_rapport' tableau_bord.pk %}"
+                        class="action-btn"
+                    >
+                        Modifier le rapport
+                    </a>
+
+                {% endif %}
+
+
+                <form
+                    method="post"
+                    action="{% url 'ai_assistant:generer_rapport' tableau_bord.pk %}"
+                    class="m-0"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="action-btn primary"
+                    >
+                        {% if rapport %}
+                            Régénérer
+                        {% else %}
+                            Générer
+                        {% endif %}
+                    </button>
+
+                </form>
+
+
+                {% if rapport %}
+
+                    <div class="dropdown">
+
+                        <button
+                            type="button"
+                            class="action-btn dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            Exporter
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li>
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    onclick="exporterRapportPDF()"
+                                >
+                                    PDF / Imprimer
+                                </button>
+                            </li>
+
+                            <li>
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    onclick="exporterRapportWord()"
+                                >
+                                    Document Word
+                                </button>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <main
+            class="report-body"
+            id="report-print-area"
+        >
+
+            {% if rapport %}
+
+                <section class="report-card p-4 mb-3">
+
+                    <div class="section-help mb-2">
+                        Généré le
+                        {{ rapport.date_creation|date:"d/m/Y à H:i" }}
+                        avec {{ rapport.modele_ollama }}.
+                    </div>
+
+                    <h2 class="section-title">
+                        Résumé exécutif
+                    </h2>
+
+                    <p class="mb-0">
+                        {{ rapport.contenu.resume_executif }}
+                    </p>
+
+                    {% if rapport.contenu.synthese_ia %}
+
+                        <div class="report-note mt-3">
+                            <div class="fw-semibold mb-1">
+                                Synthèse complémentaire
+                            </div>
+                            <div>
+                                {{ rapport.contenu.synthese_ia }}
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <div class="row g-3 mb-3">
+
+                    <div class="col-sm-6 col-xl-3">
+                        <section class="metric-card">
+                            <div class="metric-label">Lignes disponibles</div>
+                            <div class="metric-value">
+                                {{ rapport.donnees_calculees.tableau_bord.nombre_lignes_total }}
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="col-sm-6 col-xl-3">
+                        <section class="metric-card">
+                            <div class="metric-label">Lignes après filtres</div>
+                            <div class="metric-value">
+                                {{ rapport.donnees_calculees.tableau_bord.nombre_lignes_apres_filtres }}
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="col-sm-6 col-xl-3">
+                        <section class="metric-card">
+                            <div class="metric-label">Widgets analysés</div>
+                            <div class="metric-value">
+                                {{ rapport.donnees_calculees.tableau_bord.nombre_widgets }}
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="col-sm-6 col-xl-3">
+                        <section class="metric-card">
+                            <div class="metric-label">Widgets à revoir</div>
+                            <div class="metric-value">
+                                {{ rapport.donnees_calculees.tableau_bord.nombre_widgets_a_revoir|default:"0" }}
+                            </div>
+                        </section>
+                    </div>
+
+                </div>
+
+
+                <section class="mb-3">
+
+                    <div class="mb-3">
+                        <h2 class="section-title">
+                            Interprétation détaillée des widgets
+                        </h2>
+                        <p class="section-help mb-0">
+                            Les statistiques sont calculées par Django et Pandas.
+                            Les commentaires de l’assistant sont optionnels et contrôlés.
+                        </p>
+                    </div>
+
+
+                    <div class="row g-3">
+
+                        {% for element in rapport.contenu.analyses_widgets %}
+
+                            <div class="col-12">
+
+                                <article class="report-card p-4">
+
+                                    <div
+                                        class="d-flex flex-column flex-xl-row
+                                               justify-content-between gap-3 mb-3"
+                                    >
+
+                                        <div>
+                                            <div class="section-help mb-1">
+                                                Widget {{ element.position }}
+                                                · {{ element.type_widget }}
+                                            </div>
+                                            <h3 class="widget-heading mb-0">
+                                                {{ element.titre }}
+                                            </h3>
+                                        </div>
+
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <span
+                                                class="quality-badge
+                                                       quality-{{ element.qualite.niveau }}"
+                                            >
+                                                {{ element.qualite.libelle }}
+                                            </span>
+                                            <span class="meta-badge">
+                                                Dimension : {{ element.dimension }}
+                                            </span>
+                                            <span class="meta-badge">
+                                                Mesure : {{ element.mesure }}
+                                            </span>
+                                            <span class="meta-badge">
+                                                Agrégation : {{ element.agregation }}
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="row g-3">
+
+                                        <div class="col-xl-7">
+
+                                            <div class="analysis-box">
+
+                                                <h4 class="h6">
+                                                    Résultat interprété
+                                                </h4>
+
+                                                <p>
+                                                    {{ element.interpretation }}
+                                                </p>
+
+                                                {% if element.commentaire_ia %}
+                                                    <div class="report-note mb-3">
+                                                        <div class="fw-semibold mb-1">
+                                                            Commentaire de l’assistant
+                                                        </div>
+                                                        <div>
+                                                            {{ element.commentaire_ia }}
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+
+                                                {% if element.qualite.messages %}
+                                                    <div
+                                                        class="report-note
+                                                               {% if element.qualite.niveau != 'BON' %}
+                                                                   warning-note
+                                                               {% endif %}"
+                                                    >
+                                                        <div class="fw-semibold mb-1">
+                                                            Évaluation de la visualisation
+                                                        </div>
+                                                        <ul class="report-list mb-0 ps-3">
+                                                            {% for message in element.qualite.messages %}
+                                                                <li>{{ message }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                {% endif %}
+
+                                                <div class="section-help mt-3">
+                                                    <strong>Prudence :</strong>
+                                                    {{ element.prudence }}
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="col-xl-5">
+
+                                            <div class="analysis-box">
+                                                <div class="fw-semibold mb-2">
+                                                    Détails calculés
+                                                </div>
+                                                <ul class="report-list small mb-0 ps-3">
+                                                    <li>
+                                                        {{ element.nombre_lignes_utilisees }}
+                                                        ligne(s) utilisée(s)
+                                                    </li>
+                                                    {% if element.serie != "Aucune" %}
+                                                        <li>Série : {{ element.serie }}</li>
+                                                    {% endif %}
+                                                    {% for detail in element.details %}
+                                                        <li>{{ detail }}</li>
+                                                    {% empty %}
+                                                        <li>Aucun détail supplémentaire.</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {% if element.classement %}
+
+                                        <div class="table-responsive mt-3">
+                                            <table class="table table-sm ranking-table mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Catégorie</th>
+                                                        <th>Valeur</th>
+                                                        <th>Part du total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for ligne in element.classement %}
+                                                        <tr>
+                                                            <td>{{ ligne.etiquette }}</td>
+                                                            <td>{{ ligne.valeur }}</td>
+                                                            <td>
+                                                                {% if ligne.part is not None %}
+                                                                    {{ ligne.part }} %
+                                                                {% else %}
+                                                                    —
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    {% if element.colonnes_statistiques %}
+
+                                        <div class="table-responsive mt-3">
+                                            <table class="table table-sm ranking-table mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Colonne</th>
+                                                        <th>Type</th>
+                                                        <th>Distinctes</th>
+                                                        <th>Manquantes</th>
+                                                        <th>Minimum</th>
+                                                        <th>Maximum</th>
+                                                        <th>Moyenne</th>
+                                                        <th>Médiane</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for colonne in element.colonnes_statistiques %}
+                                                        <tr>
+                                                            <td>{{ colonne.nom }}</td>
+                                                            <td>{{ colonne.type }}</td>
+                                                            <td>{{ colonne.nombre_distinctes }}</td>
+                                                            <td>
+                                                                {{ colonne.nombre_manquantes }}
+                                                                ({{ colonne.taux_manquantes }} %)
+                                                            </td>
+                                                            <td>{{ colonne.minimum|default:"—" }}</td>
+                                                            <td>{{ colonne.maximum|default:"—" }}</td>
+                                                            <td>{{ colonne.moyenne|default:"—" }}</td>
+                                                            <td>{{ colonne.mediane|default:"—" }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    {% endif %}
+
+                                </article>
+
+                            </div>
+
+                        {% empty %}
+
+                            <div class="col-12">
+                                <section class="report-card p-4">
+                                    Aucun widget analysé.
+                                </section>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+
+                {% if rapport.donnees_calculees.colonnes_utilisees %}
+
+                    <section class="report-card p-4 mb-3">
+
+                        <h2 class="section-title">
+                            Qualité des colonnes utilisées
+                        </h2>
+
+                        <p class="section-help">
+                            Cette section porte uniquement sur les colonnes utilisées
+                            par les widgets du tableau de bord.
+                        </p>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm data-quality-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Colonne</th>
+                                        <th>Rôle</th>
+                                        <th>Type</th>
+                                        <th>Distinctes</th>
+                                        <th>Valeurs manquantes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for colonne in rapport.donnees_calculees.colonnes_utilisees %}
+                                        <tr>
+                                            <td class="fw-semibold">{{ colonne.nom }}</td>
+                                            <td>{{ colonne.roles|join:", " }}</td>
+                                            <td>{{ colonne.type }}</td>
+                                            <td>{{ colonne.nombre_distinctes }}</td>
+                                            <td>
+                                                {{ colonne.nombre_manquantes }}
+                                                ({{ colonne.taux_manquantes }} %)
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </section>
+
+                {% endif %}
+
+
+                <div class="row g-3">
+
+                    <div class="col-lg-6">
+                        <section class="report-card p-4 h-100">
+                            <h2 class="section-title">Principales constatations</h2>
+                            <ul class="report-list mb-0 ps-3">
+                                {% for element in rapport.contenu.constatations %}
+                                    <li>{{ element }}</li>
+                                {% empty %}
+                                    <li>Aucune constatation supplémentaire.</li>
+                                {% endfor %}
+                            </ul>
+                        </section>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <section class="report-card p-4 h-100">
+                            <h2 class="section-title">Recommandations</h2>
+                            <ul class="report-list mb-0 ps-3">
+                                {% for element in rapport.contenu.recommandations %}
+                                    <li>{{ element }}</li>
+                                {% empty %}
+                                    <li>Aucune correction prioritaire détectée.</li>
+                                {% endfor %}
+                            </ul>
+                        </section>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <section class="report-card p-4 h-100">
+                            <h2 class="section-title">Comparaison entre widgets</h2>
+                            <ul class="report-list mb-0 ps-3">
+                                {% for element in rapport.contenu.comparaisons %}
+                                    <li>{{ element }}</li>
+                                {% empty %}
+                                    <li>Aucun widget directement comparable.</li>
+                                {% endfor %}
+                            </ul>
+                        </section>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <section class="report-card p-4 h-100">
+                            <h2 class="section-title">Limites de l’analyse</h2>
+                            <ul class="report-list mb-0 ps-3">
+                                {% for element in rapport.contenu.limites %}
+                                    <li>{{ element }}</li>
+                                {% empty %}
+                                    <li>Les résultats dépendent des filtres et agrégations utilisés.</li>
+                                {% endfor %}
+                            </ul>
+                        </section>
+                    </div>
+
+                </div>
+
+
+                <section class="report-card p-4 mt-3">
+                    <h2 class="section-title">Conclusion générale</h2>
+                    <p class="mb-0">{{ rapport.contenu.conclusion }}</p>
+                </section>
+
+            {% else %}
+
+                <section class="report-card p-5 text-center">
+                    <h2 class="section-title">Aucun rapport généré</h2>
+                    <p class="section-help mb-0">
+                        Cliquez sur « Générer » pour analyser les widgets présents.
+                    </p>
+                </section>
+
+            {% endif %}
+
+        </main>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script>
+        function nomFichierRapport() {
+            return (
+                "{{ tableau_bord.titre|escapejs }}"
+                || "rapport_statistique"
+            )
+            .replace(/[^a-zA-Z0-9À-ÿ_-]+/g, "_")
+            .replace(/^_+|_+$/g, "");
+        }
+
+        function exporterRapportPDF() {
+            window.print();
+        }
+
+        function exporterRapportWord() {
+            const zone = document.getElementById("report-print-area");
+            if (!zone) {
+                return;
+            }
+
+            const styles = `
+                body { font-family: Arial, sans-serif; color: #172033; line-height: 1.45; }
+                h1, h2, h3, h4 { color: #172033; }
+                section, article { margin-bottom: 18px; padding: 16px; border: 1px solid #dfe4ea; }
+                table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+                th, td { border: 1px solid #dfe4ea; padding: 7px; text-align: left; }
+                .no-print, button, form, .dropdown { display: none !important; }
+            `;
+
+            const documentWord = `
+                <!DOCTYPE html>
+                <html lang="fr">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Rapport statistique</title>
+                    <style>${styles}</style>
+                </head>
+                <body>
+                    <h1>Rapport statistique intelligent</h1>
+                    <p>Tableau de bord : {{ tableau_bord.titre|escapejs }}</p>
+                    ${zone.innerHTML}
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(
+                ["\ufeff", documentWord],
+                {type: "application/msword"}
+            );
+
+            const url = URL.createObjectURL(blob);
+            const lien = document.createElement("a");
+            lien.href = url;
+            lien.download = nomFichierRapport() + "_rapport.doc";
+            document.body.appendChild(lien);
+            lien.click();
+            lien.remove();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+{% endblock %}

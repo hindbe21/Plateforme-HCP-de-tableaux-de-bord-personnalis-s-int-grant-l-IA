@@ -1,0 +1,501 @@
+/* =========================================================
+   BOUTON FLOTTANT
+   ========================================================= */
+
+.hcp-theme-toggle {
+    width: 50px;
+    height: 50px;
+    display: inline-flex;
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 1100;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(116, 19, 63, 0.22);
+    border-radius: 50%;
+    background: #ffffff;
+    color: #74133f;
+    font-size: 1.45rem;
+    line-height: 1;
+    box-shadow:
+        0 10px 30px rgba(28, 25, 23, 0.18);
+    cursor: pointer;
+    transition:
+        transform 180ms ease,
+        background 180ms ease,
+        color 180ms ease,
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.hcp-theme-toggle:hover {
+    border-color: #f27922;
+    background: #fff5ec;
+    color: #d95d0a;
+    box-shadow:
+        0 13px 34px rgba(28, 25, 23, 0.23);
+    transform: translateY(-2px);
+}
+
+.hcp-theme-toggle:focus-visible {
+    outline: 3px solid rgba(242, 121, 34, 0.32);
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
+   VARIABLES SOMBRES
+   ========================================================= */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --hcp-bg: #0f1218;
+    --hcp-bg-soft: #141821;
+    --hcp-surface: #191e28;
+
+    --hcp-border: #303644;
+    --hcp-border-strong: #414959;
+
+    --hcp-text: #f2f4f7;
+    --hcp-text-soft: #cbd1dc;
+    --hcp-muted: #9aa4b3;
+
+    --hcp-burgundy: #d06491;
+    --hcp-burgundy-dark: #f0a2c1;
+    --hcp-burgundy-light: #dd79a2;
+    --hcp-burgundy-soft:
+        rgba(208, 100, 145, 0.13);
+
+    --hcp-orange: #f79a50;
+    --hcp-orange-dark: #ffac68;
+    --hcp-orange-soft:
+        rgba(247, 154, 80, 0.12);
+
+    --hcp-green: #4fc38b;
+    --hcp-green-dark: #80ddb0;
+    --hcp-green-soft:
+        rgba(79, 195, 139, 0.13);
+
+    --hcp-blue: #72a0ff;
+    --hcp-blue-soft:
+        rgba(114, 160, 255, 0.13);
+
+    --hcp-danger: #ff7770;
+    --hcp-danger-soft:
+        rgba(255, 119, 112, 0.12);
+
+    --hcp-shadow-sm:
+        0 5px 18px rgba(0, 0, 0, 0.20);
+
+    --hcp-shadow:
+        0 13px 36px rgba(0, 0, 0, 0.28);
+
+    --hcp-shadow-lg:
+        0 22px 55px rgba(0, 0, 0, 0.36);
+
+    --bs-body-bg: #0f1218;
+    --bs-body-color: #f2f4f7;
+    --bs-secondary-bg: #191e28;
+    --bs-tertiary-bg: #202632;
+    --bs-border-color: #303644;
+}
+
+
+/* =========================================================
+   STRUCTURE GÉNÉRALE
+   ========================================================= */
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] body.app-guest {
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(247, 154, 80, 0.055),
+            transparent 28rem
+        ),
+        radial-gradient(
+            circle at 100% 16%,
+            rgba(208, 100, 145, 0.07),
+            transparent 32rem
+        ),
+        var(--hcp-bg) !important;
+
+    color: var(--hcp-text);
+}
+
+html[data-theme="dark"] .app-footer {
+    color: var(--hcp-muted);
+}
+
+html[data-theme="dark"] .app-footer-container {
+    border-color: var(--hcp-border);
+}
+
+
+/* =========================================================
+   CARTES ET CONTENEURS
+   ========================================================= */
+
+html[data-theme="dark"] :is(
+    .card,
+    .app-card,
+    .stat-card,
+    .widget-card,
+    .dashboard-panel,
+    .app-panel,
+    .dropdown-menu,
+    .modal-content,
+    .offcanvas,
+    .accordion-item,
+    .list-group-item,
+    .source-import-shell,
+    .source-panel,
+    .source-security,
+    .profile-identity,
+    .profile-card,
+    .profile-note,
+    .profile-logout
+) {
+    border-color: var(--hcp-border) !important;
+    background-color: var(--hcp-surface) !important;
+    color: var(--hcp-text) !important;
+}
+
+html[data-theme="dark"] main :is(
+    [class*="-card"],
+    [class*="-panel"],
+    [class*="-shell"],
+    [class*="-toolbar"],
+    [class*="-identity"],
+    [class*="-security"],
+    [class*="-filters"],
+    [class*="-table-wrap"]
+) {
+    border-color: var(--hcp-border) !important;
+    background-color: var(--hcp-surface) !important;
+}
+
+html[data-theme="dark"] :is(
+    .bg-white,
+    .bg-light
+) {
+    background-color: var(--hcp-surface) !important;
+}
+
+html[data-theme="dark"] :is(
+    .text-dark,
+    .dropdown-item,
+    .list-group-item
+) {
+    color: var(--hcp-text) !important;
+}
+
+html[data-theme="dark"] .text-muted {
+    color: var(--hcp-muted) !important;
+}
+
+
+/* =========================================================
+   FORMULAIRES
+   ========================================================= */
+
+html[data-theme="dark"] :is(
+    .form-control,
+    .form-select,
+    .input-group-text
+) {
+    border-color: var(--hcp-border-strong) !important;
+    background-color: #121720 !important;
+    color: var(--hcp-text) !important;
+}
+
+html[data-theme="dark"] :is(
+    .form-control,
+    .form-select
+)::placeholder {
+    color: #778191;
+}
+
+html[data-theme="dark"] :is(
+    .form-control,
+    .form-select
+):focus {
+    border-color: var(--hcp-burgundy) !important;
+    background-color: #151a24 !important;
+    color: var(--hcp-text) !important;
+    box-shadow:
+        0 0 0 .22rem
+        rgba(208, 100, 145, .14) !important;
+}
+
+html[data-theme="dark"] :is(
+    .form-control:disabled,
+    .form-select:disabled,
+    .form-control[readonly]
+) {
+    background-color: #222733 !important;
+    color: var(--hcp-muted) !important;
+}
+
+html[data-theme="dark"] option {
+    background: #151a24;
+    color: var(--hcp-text);
+}
+
+
+/* =========================================================
+   TABLEAUX
+   ========================================================= */
+
+html[data-theme="dark"] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--hcp-text);
+    --bs-table-border-color: var(--hcp-border);
+    --bs-table-hover-bg:
+        rgba(208, 100, 145, .06);
+    --bs-table-hover-color: var(--hcp-text);
+
+    color: var(--hcp-text);
+}
+
+html[data-theme="dark"] .table thead th {
+    border-color: var(--hcp-border) !important;
+    background: #202632 !important;
+    color: var(--hcp-text-soft) !important;
+}
+
+html[data-theme="dark"] .table td {
+    border-color: var(--hcp-border) !important;
+    color: var(--hcp-text-soft);
+}
+
+
+/* =========================================================
+   MENUS ET NAVIGATION
+   ========================================================= */
+
+html[data-theme="dark"] .dropdown-divider {
+    border-color: var(--hcp-border);
+}
+
+html[data-theme="dark"] .dropdown-item:hover,
+html[data-theme="dark"] .dropdown-item:focus {
+    background-color:
+        var(--hcp-burgundy-soft) !important;
+    color: var(--hcp-burgundy-dark) !important;
+}
+
+html[data-theme="dark"] .nav-tabs {
+    border-color: var(--hcp-border);
+}
+
+html[data-theme="dark"] .nav-tabs .nav-link {
+    color: var(--hcp-muted);
+}
+
+html[data-theme="dark"] .nav-tabs .nav-link.active {
+    border-color:
+        var(--hcp-border)
+        var(--hcp-border)
+        var(--hcp-surface);
+    background: var(--hcp-surface);
+    color: var(--hcp-burgundy-dark);
+}
+
+
+/* =========================================================
+   BOUTONS
+   ========================================================= */
+
+html[data-theme="dark"] :is(
+    .btn-outline-secondary,
+    .btn-outline-dark,
+    .btn-dashboard-outline-secondary,
+    .btn-dashboard-outline,
+    .btn-hcp-orange
+) {
+    border-color: var(--hcp-border-strong) !important;
+    background: #1b202b !important;
+    color: var(--hcp-text-soft) !important;
+}
+
+html[data-theme="dark"] :is(
+    .btn-outline-secondary,
+    .btn-outline-dark,
+    .btn-dashboard-outline-secondary,
+    .btn-dashboard-outline,
+    .btn-hcp-orange
+):hover {
+    border-color: var(--hcp-orange) !important;
+    background: var(--hcp-orange-soft) !important;
+    color: var(--hcp-orange-dark) !important;
+}
+
+
+/* =========================================================
+   ALERTES
+   ========================================================= */
+
+html[data-theme="dark"] .app-alert,
+html[data-theme="dark"] .alert {
+    border-color: var(--hcp-border);
+    background-color: var(--hcp-surface);
+}
+
+html[data-theme="dark"] .alert-success {
+    background: rgba(79, 195, 139, .11);
+    color: #91e5bb;
+}
+
+html[data-theme="dark"] :is(
+    .alert-danger,
+    .alert-error
+) {
+    background: rgba(255, 119, 112, .10);
+    color: #ffaaa5;
+}
+
+html[data-theme="dark"] .alert-warning {
+    background: rgba(247, 154, 80, .10);
+    color: #ffc18f;
+}
+
+html[data-theme="dark"] .alert-info {
+    background: rgba(114, 160, 255, .10);
+    color: #a9c4ff;
+}
+
+
+/* =========================================================
+   PAGINATION ET CODE
+   ========================================================= */
+
+html[data-theme="dark"] .page-link {
+    border-color: var(--hcp-border);
+    background: var(--hcp-surface);
+    color: var(--hcp-text-soft);
+}
+
+html[data-theme="dark"] .page-item.active .page-link {
+    border-color: var(--hcp-burgundy);
+    background: var(--hcp-burgundy);
+    color: #ffffff;
+}
+
+html[data-theme="dark"] :is(
+    pre,
+    code
+) {
+    background: #11151d;
+    color: #e8c2d1;
+}
+
+
+/* =========================================================
+   BOUTON EN MODE SOMBRE
+   ========================================================= */
+
+html[data-theme="dark"] .hcp-theme-toggle {
+    border-color: #414959;
+    background: #202632;
+    color: #ffc186;
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, .42);
+}
+
+html[data-theme="dark"] .hcp-theme-toggle:hover {
+    border-color: var(--hcp-orange);
+    background: #282e3a;
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   DJANGO ADMIN
+   ========================================================= */
+
+html[data-theme="dark"] {
+    --body-bg: #0f1218;
+    --body-fg: #f2f4f7;
+    --darkened-bg: #151a23;
+    --selected-bg: #262c38;
+    --selected-row: #262c38;
+    --hairline-color: #303644;
+    --border-color: #303644;
+    --link-fg: #e285ab;
+    --link-hover-color: #f0a2c1;
+    --header-bg: #651037;
+}
+
+html[data-theme="dark"] :is(
+    #content,
+    #container,
+    #content-main,
+    .module,
+    .inline-group,
+    .submit-row,
+    #changelist-filter,
+    #toolbar,
+    .results
+) {
+    border-color: var(--hcp-border) !important;
+    background-color: var(--hcp-surface) !important;
+    color: var(--hcp-text) !important;
+}
+
+html[data-theme="dark"] div.breadcrumbs {
+    border-color: var(--hcp-border) !important;
+    background: #151a23 !important;
+    color: var(--hcp-text-soft) !important;
+}
+
+html[data-theme="dark"] :is(
+    .hcp-admin-hero,
+    .hcp-admin-profile,
+    .hcp-admin-stats article,
+    .hcp-admin-app-card,
+    .hcp-admin-recent
+) {
+    border-color: var(--hcp-border) !important;
+    background: var(--hcp-surface) !important;
+    color: var(--hcp-text) !important;
+}
+
+html[data-theme="dark"] :is(
+    .hcp-admin-hero h1,
+    .hcp-admin-app-card h2,
+    .hcp-admin-recent h2
+) {
+    color: var(--hcp-burgundy-dark) !important;
+}
+
+/*
+ * Cache le petit bouton de thème placé dans
+ * l'en-tête standard de Django Admin.
+ */
+html .theme-toggle {
+    display: none !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 575.98px) {
+    .hcp-theme-toggle {
+        width: 46px;
+        height: 46px;
+        right: 14px;
+        bottom: 14px;
+        font-size: 1.3rem;
+    }
+}
+
+@media print {
+    .hcp-theme-toggle {
+        display: none !important;
+    }
+}

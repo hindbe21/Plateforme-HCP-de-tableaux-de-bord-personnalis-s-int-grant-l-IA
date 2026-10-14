@@ -1,0 +1,353 @@
+{% if erreur_assistant %}
+
+    <div class="alert alert-warning">
+        L’assistant est temporairement indisponible :
+        {{ erreur_assistant }}
+    </div>
+
+{% else %}
+
+    <div class="row g-3">
+
+        <div class="col-xl-8">
+
+            <section class="panel p-4 mb-3">
+
+                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+
+                    <div>
+                        <h2 class="h5 text-hcp-burgundy fw-bold mb-1">
+                            Suggestions de widgets
+                        </h2>
+
+                        <p class="help mb-0">
+                            Pandas analyse les colonnes et propose des visualisations
+                            utiles. Rien n’est créé avant votre validation.
+                        </p>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <form method="post" action="{% url 'ai_assistant:reanalyser' tableau_bord.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                Relancer l’analyse
+                            </button>
+                        </form>
+
+                        <form method="post" action="{% url 'ai_assistant:regenerer_suggestions' tableau_bord.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-dashboard-outline btn-sm">
+                                Régénérer les suggestions
+                            </button>
+                        </form>
+
+                    </div>
+
+                </div>
+
+                <div class="row g-2 mt-3">
+
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded-3 p-3">
+                            <div class="help small">Lignes</div>
+                            <div class="h4 mb-0">{{ analyse.schema.nombre_lignes }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded-3 p-3">
+                            <div class="help small">Colonnes</div>
+                            <div class="h4 mb-0">{{ analyse.schema.nombre_colonnes }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded-3 p-3">
+                            <div class="help small">Dimensions</div>
+                            <div class="h4 mb-0">{{ analyse.schema.dimensions|length }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded-3 p-3">
+                            <div class="help small">Mesures</div>
+                            <div class="h4 mb-0">{{ analyse.schema.mesures|length }}</div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <form
+                id="selection-form"
+                method="post"
+                action="{% url 'ai_assistant:creer_selection_suggestions' tableau_bord.pk %}"
+                class="d-none"
+            >
+                {% csrf_token %}
+            </form>
+
+            <div>
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+
+                    <div>
+                        <h2 class="h5 mb-1">Catalogue pertinent</h2>
+                        <p class="help small mb-0">
+                            Sélectionnez une ou plusieurs propositions.
+                        </p>
+                    </div>
+
+                    <button
+                        type="submit"
+                        form="selection-form"
+                        class="btn btn-hcp-primary"
+                        id="create-selection"
+                        disabled
+                    >
+                        Ajouter la sélection
+                        (<span id="selection-count">0</span>)
+                    </button>
+
+                </div>
+
+
+                {% for groupe in groupes_suggestions %}
+
+                    <section class="mb-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="h6 text-hcp-burgundy fw-bold mb-0">
+                                {{ groupe.libelle }}
+                            </h3>
+                            <span class="badge text-bg-light border">
+                                {{ groupe.nombre }}
+                            </span>
+                        </div>
+
+                        <div class="row g-3">
+
+                            {% for suggestion in groupe.suggestions %}
+
+                                <div class="col-lg-6">
+
+                                    <article class="suggestion-card">
+
+                                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+
+                                            <div class="d-flex gap-2">
+
+                                                <input
+                                                    class="form-check-input mt-1"
+                                                    type="checkbox"
+                                                    name="suggestion_ids"
+                                                    value="{{ suggestion.pk }}"
+                                                    form="selection-form"
+                                                    data-suggestion-checkbox
+                                                >
+
+                                                <div>
+
+                                                    <span class="pertinence pertinence-{{ suggestion.configuration.pertinence }}">
+                                                        {{ suggestion.configuration.pertinence_libelle }}
+                                                    </span>
+
+                                                    <h4 class="h6 mt-2 mb-1">
+                                                        {{ suggestion.configuration.titre }}
+                                                    </h4>
+
+                                                </div>
+
+                                            </div>
+
+                                            <span class="badge text-bg-light border">
+                                                {{ suggestion.configuration.representation }}
+                                            </span>
+
+                                        </div>
+
+                                        <div class="suggestion-meta text-muted mb-2">
+
+                                            {% if suggestion.configuration.colonne_categorie %}
+                                                Dimension :
+                                                {{ suggestion.configuration.colonne_categorie }}
+                                            {% endif %}
+
+                                            {% if suggestion.configuration.colonne_mesure %}
+                                                · Mesure :
+                                                {{ suggestion.configuration.colonne_mesure }}
+                                            {% endif %}
+
+                                            {% if suggestion.configuration.colonne_serie %}
+                                                · Série :
+                                                {{ suggestion.configuration.colonne_serie }}
+                                            {% endif %}
+
+                                            · Agrégation :
+                                            {{ suggestion.configuration.agregation_affichee }}
+
+                                        </div>
+
+                                        <p class="small mb-2">
+                                            <strong>Objectif :</strong>
+                                            {{ suggestion.configuration.objectif }}
+                                        </p>
+
+                                        <p class="small text-muted mb-3">
+                                            {{ suggestion.justification }}
+                                        </p>
+
+                                        <div class="d-flex flex-wrap gap-2 mt-auto">
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'ai_assistant:creer_depuis_suggestion' suggestion.pk %}"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-hcp-primary btn-sm">
+                                                    Ajouter au tableau de bord
+                                                </button>
+                                            </form>
+
+                                            <a
+                                                href="{% url 'ai_assistant:modifier_suggestion' suggestion.pk %}"
+                                                class="btn btn-outline-secondary btn-sm"
+                                            >
+                                                Modifier
+                                            </a>
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'ai_assistant:supprimer_suggestion' suggestion.pk %}"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                    Retirer
+                                                </button>
+                                            </form>
+
+                                        </div>
+
+                                    </article>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+                {% empty %}
+
+                    <div class="panel p-5 text-center text-muted">
+                        Aucune suggestion disponible.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% if widgets_non_disponibles %}
+
+                <section class="panel p-4 mt-3">
+
+                    <h2 class="h6 text-hcp-burgundy fw-bold">
+                        Visualisations non disponibles
+                    </h2>
+
+                    <ul class="small mb-0 ps-3">
+                        {% for element in widgets_non_disponibles %}
+                            <li class="mb-2">
+                                <strong>{{ element.nom }}</strong> :
+                                {{ element.raison }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                </section>
+
+            {% endif %}
+
+        </div>
+
+
+        <aside class="col-xl-4">
+
+            <section class="panel chat-panel p-4">
+
+                <div class="d-flex justify-content-between gap-2 mb-3">
+
+                    <div>
+                        <h2 class="h5 text-hcp-burgundy fw-bold mb-1">
+                            Assistant conversationnel
+                        </h2>
+                        <p class="help small mb-0">
+                            Demandez d’autres propositions en langage naturel.
+                        </p>
+                    </div>
+
+                    <form
+                        method="post"
+                        action="{% url 'ai_assistant:effacer_conversation' tableau_bord.pk %}"
+                    >
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm">
+                            Effacer
+                        </button>
+                    </form>
+
+                </div>
+
+
+                <div class="chat-messages mb-3">
+
+                    {% for message in conversation %}
+
+                        <div class="chat-message {% if message.role == 'user' %}chat-user{% endif %}">
+
+                            <div class="small fw-semibold mb-1">
+                                {% if message.role == "user" %}Vous{% else %}Assistant{% endif %}
+                            </div>
+
+                            <div class="small">
+                                {{ message.content }}
+                            </div>
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="help small py-3">
+                            Exemples : « Propose un classement par région »,
+                            « Quel KPI est pertinent ? », « Crée un tableau croisé ».
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <form
+                    method="post"
+                    action="{% url 'ai_assistant:envoyer_message' tableau_bord.pk %}"
+                >
+                    {% csrf_token %}
+                    {{ form_chat.message }}
+
+                    <button type="submit" class="btn btn-hcp-primary w-100 mt-3">
+                        Envoyer la demande
+                    </button>
+                </form>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+{% endif %}

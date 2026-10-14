@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Demande envoyée | Plateforme HCP{% endblock %}
+
+{% block content %}
+
+<div class="hcp-page d-flex align-items-center justify-content-center">
+
+    <section class="hcp-logout-card">
+
+        <span class="hcp-profile-big-avatar mb-3" style="color: var(--hcp-green); background: var(--hcp-green-soft);">
+            <i class="bi bi-check-lg"></i>
+        </span>
+
+        <div class="page-kicker">Demande transmise</div>
+
+        <h1 class="page-title mt-2">
+            Votre inscription a été enregistrée
+        </h1>
+
+        <p class="text-muted mx-auto mt-3" style="max-width: 650px;">
+            Un administrateur vérifiera votre demande. Vous recevrez une
+            confirmation lorsque votre compte sera accepté.
+        </p>
+
+        <a href="{% url 'login' %}" class="btn btn-hcp-primary mt-3 px-5">
+            Retour à la connexion
+        </a>
+
+    </section>
+
+</div>
+
+{% endblock %}

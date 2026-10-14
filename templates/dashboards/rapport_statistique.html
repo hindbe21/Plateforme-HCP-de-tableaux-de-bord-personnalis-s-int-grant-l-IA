@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Rapport statistique | Plateforme HCP
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+    .report-page {
+        --report-green: #176b55;
+        --report-border: #e5e7eb;
+        --report-muted: #6b7280;
+    }
+
+    .report-page .report-panel,
+    .report-page .metric-box {
+        border: 1px solid var(--report-border);
+        border-radius: 16px;
+        background: #ffffff;
+    }
+
+    .report-page .metric-label {
+        color: var(--report-muted);
+        font-size: .82rem;
+    }
+
+    .report-page .metric-value {
+        color: #1f2937;
+        font-size: 1.55rem;
+        font-weight: 750;
+    }
+
+    .report-page .type-badge {
+        display: inline-block;
+        border-radius: 999px;
+        background: #eef7f4;
+        color: var(--report-green);
+        padding: .32rem .62rem;
+        font-size: .78rem;
+        font-weight: 650;
+    }
+
+    .report-page .recommendation {
+        color: #374151;
+        font-size: .9rem;
+    }
+
+    .report-page .report-table th {
+        color: var(--report-muted);
+        font-size: .78rem;
+        font-weight: 650;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .report-page .report-table td {
+        vertical-align: middle;
+    }
+</style>
+
+
+<div class="container py-4 report-page">
+
+    <a
+        href="{% url 'dashboards:detail' tableau_bord.pk %}"
+        class="text-decoration-none"
+    >
+        ← Retour au tableau de bord
+    </a>
+
+
+    <div
+        class="d-flex flex-column flex-lg-row
+               justify-content-between align-items-lg-start
+               gap-3 mt-3 mb-4"
+    >
+
+        <div>
+            <h1 class="h2 fw-bold mb-2">
+                Rapport statistique
+            </h1>
+
+            <p class="text-muted mb-1">
+                Jeu de données :
+                <strong>{{ jeu_donnees.nom }}</strong>
+            </p>
+
+            <p class="text-muted mb-0">
+                Ce résumé vous aide à choisir les
+                visualisations les plus adaptées.
+            </p>
+        </div>
+
+
+        <a
+            href="{% url 'dashboards:ajouter_widget' tableau_bord.pk %}"
+            class="btn btn-success"
+        >
+            Ajouter un widget
+        </a>
+
+    </div>
+
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="metric-box p-3 h-100">
+                <div class="metric-label">
+                    Nombre de lignes
+                </div>
+
+                <div class="metric-value">
+                    {{ nombre_lignes }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="metric-box p-3 h-100">
+                <div class="metric-label">
+                    Nombre de colonnes
+                </div>
+
+                <div class="metric-value">
+                    {{ nombre_colonnes }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="metric-box p-3 h-100">
+                <div class="metric-label">
+                    Valeurs manquantes
+                </div>
+
+                <div class="metric-value">
+                    {{ total_valeurs_manquantes }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <section class="report-panel p-4 shadow-sm">
+
+        <div class="mb-3">
+            <h2 class="h5 mb-1">
+                Colonnes et visualisations conseillées
+            </h2>
+
+            <p class="text-muted small mb-0">
+                Utilisez une colonne texte ou une date
+                pour l’axe X et une colonne numérique
+                comme mesure.
+            </p>
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table report-table align-middle mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Colonne</th>
+                        <th>Type</th>
+                        <th>Valeurs distinctes</th>
+                        <th>Manquantes</th>
+                        <th>Utilisation conseillée</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for colonne in colonnes %}
+
+                        <tr>
+                            <td class="fw-semibold">
+                                {{ colonne.nom }}
+                            </td>
+
+                            <td>
+                                <span class="type-badge">
+                                    {{ colonne.type }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ colonne.nombre_uniques }}
+                            </td>
+
+                            <td>
+                                {% if colonne.nombre_manquantes %}
+                                    <span class="text-warning fw-semibold">
+                                        {{ colonne.nombre_manquantes }}
+                                    </span>
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </td>
+
+                            <td class="recommendation">
+                                {{ colonne.recommandation }}
+                            </td>
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td
+                                colspan="5"
+                                class="text-center text-muted py-4"
+                            >
+                                Aucune colonne disponible.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

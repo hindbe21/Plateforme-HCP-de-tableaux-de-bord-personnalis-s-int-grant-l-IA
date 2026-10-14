@@ -1,0 +1,446 @@
+/* Espace Tableau de bord — interface sobre inspirée de la maquette */
+.dashboard-workspace {
+    --workspace-primary: #74133f;
+    --workspace-primary-dark: #570b2d;
+    --workspace-primary-soft: rgba(116, 19, 63, .08);
+    --workspace-text: #172033;
+    --workspace-muted: #667085;
+    --workspace-border: #dde2e8;
+    --workspace-surface: #ffffff;
+    --workspace-soft: #f7f8fa;
+    --workspace-danger: #dc3545;
+
+    width: min(1480px, calc(100vw - 2rem));
+    margin-left: 50%;
+    transform: translateX(-50%);
+    color: var(--workspace-text);
+}
+
+.dashboard-workspace .workspace-frame {
+    border: 1px solid var(--workspace-border);
+    border-radius: 20px;
+    background: var(--workspace-surface);
+    box-shadow: 0 14px 38px rgba(16, 24, 40, .07);
+    overflow: hidden;
+}
+
+.dashboard-workspace .workspace-header {
+    padding: 1.5rem 1.5rem 1.1rem;
+    border-bottom: 1px solid var(--workspace-border);
+}
+
+.dashboard-workspace .workspace-back {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    color: var(--workspace-primary);
+    font-size: .9rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.dashboard-workspace .workspace-title {
+    margin: .85rem 0 .25rem;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 780;
+    letter-spacing: -.035em;
+}
+
+.dashboard-workspace .workspace-context {
+    color: var(--workspace-muted);
+    margin: 0;
+}
+
+.dashboard-workspace .workspace-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(420px, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--workspace-border);
+    background: #fff;
+}
+
+.dashboard-workspace .workspace-primary-action {
+    white-space: nowrap;
+    border: 1px solid var(--workspace-primary);
+    background: var(--workspace-primary);
+    color: #fff;
+    font-weight: 700;
+    border-radius: 9px;
+    padding: .7rem 1rem;
+    text-decoration: none;
+    transition: .18s ease;
+}
+
+.dashboard-workspace .workspace-primary-action:hover {
+    background: var(--workspace-primary-dark);
+    border-color: var(--workspace-primary-dark);
+    color: #fff;
+}
+
+.dashboard-workspace .workspace-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid var(--workspace-border);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.dashboard-workspace .workspace-tab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
+    min-height: 44px;
+    padding: .6rem .8rem;
+    border-right: 1px solid var(--workspace-border);
+    color: #344054;
+    background: #fff;
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 650;
+    text-align: center;
+}
+
+.dashboard-workspace .workspace-tab:last-child {
+    border-right: 0;
+}
+
+.dashboard-workspace .workspace-tab:hover {
+    background: var(--workspace-soft);
+    color: var(--workspace-text);
+}
+
+.dashboard-workspace .workspace-tab.is-active {
+    position: relative;
+    z-index: 1;
+    color: var(--workspace-primary-dark);
+    background: var(--workspace-primary-soft);
+    box-shadow: inset 0 0 0 1px var(--workspace-primary);
+}
+
+.dashboard-workspace .workspace-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: .5rem;
+    white-space: nowrap;
+}
+
+.dashboard-workspace .workspace-action-button,
+.dashboard-workspace .workspace-action-link {
+    min-height: 40px;
+    border: 1px solid var(--workspace-border);
+    border-radius: 9px;
+    background: #fff;
+    color: #344054;
+    padding: .55rem .75rem;
+    font-size: .875rem;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.dashboard-workspace .workspace-action-button:hover,
+.dashboard-workspace .workspace-action-link:hover {
+    border-color: #b9c0ca;
+    background: var(--workspace-soft);
+    color: var(--workspace-text);
+}
+
+.dashboard-workspace .workspace-count {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    margin-left: .25rem;
+    border-radius: 999px;
+    background: #eef0f3;
+    color: #475467;
+    font-size: .72rem;
+}
+
+.dashboard-workspace .workspace-body {
+    padding: 1rem 1.25rem 1.25rem;
+    background: #f8f7f5;
+}
+
+.dashboard-workspace .summary-card,
+.dashboard-workspace .filter-panel,
+.dashboard-workspace .widget-card,
+.dashboard-workspace .workspace-panel,
+.dashboard-workspace .report-panel,
+.dashboard-workspace .suggestion-card,
+.dashboard-workspace .chat-panel {
+    border: 1px solid var(--workspace-border);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.dashboard-workspace .summary-card {
+    min-height: 110px;
+    padding: 1rem;
+}
+
+.dashboard-workspace .summary-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f1f3f5;
+    color: #344054;
+}
+
+.dashboard-workspace .summary-label {
+    color: #475467;
+    font-size: .84rem;
+    margin-bottom: .15rem;
+}
+
+.dashboard-workspace .summary-value {
+    color: var(--workspace-text);
+    font-size: 1.45rem;
+    line-height: 1.15;
+    font-weight: 760;
+}
+
+.dashboard-workspace .summary-help {
+    color: var(--workspace-muted);
+    font-size: .8rem;
+    margin-top: .2rem;
+}
+
+.dashboard-workspace .filter-panel {
+    padding: 1rem 1.15rem;
+}
+
+.dashboard-workspace .section-heading {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    margin: 0 0 .2rem;
+    font-size: 1.05rem;
+    font-weight: 740;
+}
+
+.dashboard-workspace .section-help {
+    color: var(--workspace-muted);
+    font-size: .86rem;
+    margin: 0;
+}
+
+.dashboard-workspace .add-filter-button {
+    border: 1px dashed #aeb6c2;
+    border-radius: 9px;
+    background: #fff;
+    color: #475467;
+    padding: .55rem .8rem;
+    font-size: .875rem;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.dashboard-workspace .add-filter-button:hover {
+    border-color: var(--workspace-primary);
+    color: var(--workspace-primary-dark);
+    background: var(--workspace-primary-soft);
+}
+
+.dashboard-workspace .filter-chip,
+.dashboard-workspace .local-filter-chip,
+.dashboard-workspace .widget-filter-state {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    border: 1px solid #e1e5ea;
+    border-radius: 7px;
+    background: #f7f8fa;
+    color: #475467;
+    padding: .35rem .55rem;
+    font-size: .78rem;
+}
+
+.dashboard-workspace .widget-card {
+    position: relative;
+    height: 100%;
+    padding: 1rem 1.1rem 1.15rem;
+    overflow: hidden;
+    box-shadow: 0 7px 22px rgba(16, 24, 40, .045);
+}
+
+.dashboard-workspace .widget-title {
+    margin: 0;
+    color: var(--workspace-text);
+    font-size: 1rem;
+    font-weight: 740;
+}
+
+.dashboard-workspace .widget-meta {
+    color: var(--workspace-muted);
+    font-size: .78rem;
+    margin-top: .35rem;
+}
+
+.dashboard-workspace .widget-menu-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--workspace-border);
+    border-radius: 8px;
+    background: #fff;
+    color: #475467;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.dashboard-workspace .widget-menu-button:hover {
+    background: var(--workspace-soft);
+}
+
+.dashboard-workspace .chart-zone {
+    position: relative;
+    height: 310px;
+    margin-top: .9rem;
+}
+
+.dashboard-workspace .indicator-value {
+    color: var(--workspace-text);
+    font-size: clamp(3rem, 7vw, 4.8rem);
+    font-weight: 800;
+    line-height: 1;
+}
+
+.dashboard-workspace .indicator-caption {
+    color: var(--workspace-muted);
+    font-size: .82rem;
+    margin-top: .75rem;
+}
+
+.dashboard-workspace .workspace-tip {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    border: 1px solid var(--workspace-border);
+    border-radius: 12px;
+    background: #fff;
+    padding: .75rem 1rem;
+    color: #475467;
+    font-size: .84rem;
+}
+
+.dashboard-workspace .chat-panel {
+    position: sticky;
+    top: 1rem;
+}
+
+.dashboard-workspace .chat-messages {
+    max-height: 430px;
+    overflow-y: auto;
+}
+
+.dashboard-workspace .chat-message {
+    border-radius: 11px;
+    padding: .75rem .85rem;
+    margin-bottom: .65rem;
+    white-space: pre-wrap;
+}
+
+.dashboard-workspace .chat-user {
+    background: #f1f3f5;
+    margin-left: 1.5rem;
+}
+
+.dashboard-workspace .chat-assistant {
+    border: 1px solid #d8e9e2;
+    background: var(--workspace-primary-soft);
+    margin-right: 1.5rem;
+}
+
+.dashboard-workspace .metric-box {
+    border: 1px solid var(--workspace-border);
+    border-radius: 12px;
+    background: #fff;
+    padding: .85rem;
+    height: 100%;
+}
+
+.dashboard-workspace .metric-value {
+    font-size: 1.35rem;
+    font-weight: 760;
+}
+
+.dashboard-workspace .config-line {
+    color: var(--workspace-muted);
+    font-size: .84rem;
+}
+
+.dashboard-workspace .exporting,
+.dashboard-workspace .exporting * {
+    box-shadow: none !important;
+}
+
+@media (max-width: 1199.98px) {
+    .dashboard-workspace .workspace-toolbar {
+        grid-template-columns: auto 1fr;
+    }
+
+    .dashboard-workspace .workspace-tabs {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    .dashboard-workspace .workspace-actions {
+        grid-column: 2;
+        grid-row: 1;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .dashboard-workspace {
+        width: calc(100vw - 1rem);
+    }
+
+    .dashboard-workspace .workspace-header,
+    .dashboard-workspace .workspace-toolbar,
+    .dashboard-workspace .workspace-body {
+        padding-left: .85rem;
+        padding-right: .85rem;
+    }
+
+    .dashboard-workspace .workspace-toolbar {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dashboard-workspace .workspace-tabs {
+        width: 100%;
+    }
+
+    .dashboard-workspace .workspace-tab {
+        padding: .55rem .35rem;
+        font-size: .78rem;
+    }
+
+    .dashboard-workspace .workspace-actions {
+        justify-content: stretch;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-workspace .workspace-action-button,
+    .dashboard-workspace .workspace-action-link {
+        flex: 1 1 auto;
+        text-align: center;
+    }
+
+    .dashboard-workspace .workspace-primary-action {
+        text-align: center;
+    }
+}

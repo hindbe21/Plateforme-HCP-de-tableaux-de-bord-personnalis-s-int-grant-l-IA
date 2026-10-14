@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil | Plateforme HCP{% endblock %}
+
+{% block content %}
+
+<div class="hcp-page">
+
+    <section class="hcp-hero mb-4">
+
+        <div class="row g-4 align-items-center">
+
+            <div class="col-lg">
+
+                <div class="page-kicker">
+                    Espace de travail
+                </div>
+
+                <h1 class="hcp-hero-title mb-3">
+                    Bienvenue,
+                    {{ user.first_name|default:user.get_full_name|default:user.email }}
+                </h1>
+
+                <p class="text-hcp-muted mb-2">
+                    Créez vos jeux de données, construisez des tableaux de bord
+                    personnalisés et transformez vos informations en visualisations
+                    claires et directement exploitables.
+                </p>
+
+            </div>
+
+            <div class="col-lg-auto">
+
+                <div class="hcp-profile-mini d-flex align-items-center gap-3">
+
+                    <span class="hcp-profile-avatar">
+                        <i class="bi bi-person"></i>
+                    </span>
+
+                    <div class="min-w-0">
+
+                        <div class="page-kicker mb-1">
+                            Profil connecté
+                        </div>
+
+                        <div class="fw-bold fs-5">
+                            {{ user.get_role_display|default:"Utilisateur métier" }}
+                        </div>
+
+                        <div class="small text-muted text-truncate">
+                            {{ user.email }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="hcp-summary-strip mb-4">
+
+        <div class="hcp-summary-item">
+
+            <span class="hcp-round-icon">
+                <i class="bi bi-database"></i>
+            </span>
+
+            <div>
+                <div class="hcp-summary-number">
+                    {{ nombre_jeux_donnees|default:"0" }}
+                </div>
+                <div class="hcp-summary-label">Jeux de données</div>
+                <div class="hcp-summary-note">actifs</div>
+            </div>
+
+        </div>
+
+
+        <div class="hcp-summary-item">
+
+            <span class="hcp-round-icon">
+                <i class="bi bi-grid"></i>
+            </span>
+
+            <div>
+                <div class="hcp-summary-number">
+                    {{ nombre_tableaux_bord|default:"0" }}
+                </div>
+                <div class="hcp-summary-label">Tableaux de bord</div>
+                <div class="hcp-summary-note">enregistrés</div>
+            </div>
+
+        </div>
+
+
+        <div class="hcp-summary-item">
+
+            <span class="hcp-round-icon">
+                <i class="bi bi-bar-chart"></i>
+            </span>
+
+            <div>
+                <div class="hcp-summary-number">
+                    {{ nombre_widgets|default:"0" }}
+                </div>
+                <div class="hcp-summary-label">Widgets</div>
+                <div class="hcp-summary-note">disponibles</div>
+            </div>
+
+        </div>
+
+
+        <div class="hcp-summary-item">
+
+            <span class="hcp-round-icon">
+                <i class="bi bi-shield-check"></i>
+            </span>
+
+            <div>
+                <div class="hcp-summary-number">
+                    {{ securite_conformite|default:"100" }}%
+                </div>
+                <div class="hcp-summary-label">Sécurité</div>
+                <div class="hcp-summary-note">session protégée</div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <div class="mb-3">
+
+        <h2 class="panel-title mb-1">
+            Accès rapide
+        </h2>
+
+        <p class="panel-subtitle mb-0">
+            Retrouvez les principales fonctionnalités de la plateforme.
+        </p>
+
+    </div>
+
+
+    <div class="row g-3">
+
+        <div class="col-md-6 col-xl-3">
+
+            <article class="hcp-quick-card">
+
+                <span class="hcp-round-icon mb-3">
+                    <i class="bi bi-database"></i>
+                </span>
+
+                <h3 class="h6 fw-bold">
+                    Jeux de données
+                </h3>
+
+                <p class="small text-muted">
+                    Importez des fichiers CSV ou Excel, consultez leur contenu
+                    et préparez-les avant leur exploitation.
+                </p>
+
+                <a
+                    href="{% url 'datasets:liste' %}"
+                    class="hcp-card-link"
+                >
+                    Gérer les données
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+
+            </article>
+
+        </div>
+
+
+        <div class="col-md-6 col-xl-3">
+
+            <article class="hcp-quick-card">
+
+                <span class="hcp-round-icon mb-3">
+                    <i class="bi bi-grid"></i>
+                </span>
+
+                <h3 class="h6 fw-bold">
+                    Tableaux de bord
+                </h3>
+
+                <p class="small text-muted">
+                    Créez des tableaux de bord personnalisés et suivez vos
+                    indicateurs clés en un coup d’œil.
+                </p>
+
+                <a
+                    href="{% url 'dashboards:liste' %}"
+                    class="hcp-card-link"
+                >
+                    Ouvrir les tableaux de bord
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+
+            </article>
+
+        </div>
+
+
+        <div class="col-md-6 col-xl-3">
+
+            <article class="hcp-quick-card">
+
+                <span class="hcp-round-icon mb-3">
+                    <i class="bi bi-bar-chart"></i>
+                </span>
+
+                <h3 class="h6 fw-bold">
+                    Widgets et visualisations
+                </h3>
+
+                <p class="small text-muted">
+                    Ajoutez des graphiques, indicateurs et tableaux afin de
+                    présenter vos informations de manière claire.
+                </p>
+
+                <a
+                    href="{% url 'dashboards:liste' %}"
+                    class="hcp-card-link"
+                >
+                    Créer une visualisation
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+
+            </article>
+
+        </div>
+
+
+        <div class="col-md-6 col-xl-3">
+
+            <article class="hcp-quick-card">
+
+                <span class="hcp-round-icon mb-3">
+                    <i class="bi bi-shield-check"></i>
+                </span>
+
+                <h3 class="h6 fw-bold">
+                    Profil et sécurité
+                </h3>
+
+                <p class="small text-muted">
+                    Gérez votre profil et les paramètres de sécurité de votre
+                    compte utilisateur.
+                </p>
+
+                <a
+                    href="{% url 'profil' %}"
+                    class="hcp-card-link"
+                >
+                    Voir mon profil
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

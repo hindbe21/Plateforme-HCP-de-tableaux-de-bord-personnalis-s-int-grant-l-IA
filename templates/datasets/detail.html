@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block title %}{{ jeu_donnees.nom }} | Plateforme HCP{% endblock %}
+
+{% block content %}
+
+<div class="hcp-page">
+
+    <a
+        href="{% url 'datasets:liste' %}"
+        class="text-decoration-none fw-semibold"
+    >
+        ← Retour aux jeux de données
+    </a>
+
+
+    <header class="hcp-detail-header mt-4 mb-4">
+
+        <div>
+
+            <h1 class="page-title">
+                {{ jeu_donnees.nom }}
+            </h1>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+
+                {% if jeu_donnees.statut == "VALIDE" %}
+                    <span class="badge text-bg-success">
+                        <i class="bi bi-check-circle me-1"></i>
+                        {{ jeu_donnees.get_statut_display }}
+                    </span>
+                {% else %}
+                    <span class="badge text-bg-warning">
+                        {{ jeu_donnees.get_statut_display|default:jeu_donnees.statut }}
+                    </span>
+                {% endif %}
+
+                {% if jeu_donnees.type_version %}
+                    <span class="badge text-bg-light border">
+                        {{ jeu_donnees.get_type_version_display }}
+                        {% if jeu_donnees.numero_version %}
+                            — v{{ jeu_donnees.numero_version }}
+                        {% endif %}
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="hcp-action-row">
+
+            <a
+                href="{% url 'datasets:modifier' jeu_donnees.pk %}"
+                class="btn btn-outline-secondary"
+            >
+                <i class="bi bi-pencil me-2"></i>
+                Modifier
+            </a>
+
+            <a
+                href="{% url 'datasets:nettoyer' jeu_donnees.pk %}"
+                class="btn btn-dashboard-outline"
+            >
+                <i class="bi bi-stars me-2"></i>
+                Nettoyer les données
+            </a>
+
+            <a
+                href="{% url 'datasets:rapport_statistique' jeu_donnees.pk %}"
+                class="btn btn-dashboard-outline-secondary"
+            >
+                <i class="bi bi-bar-chart-line me-2"></i>
+                Rapport statistique
+            </a>
+
+            <a
+                href="{% url 'datasets:supprimer' jeu_donnees.pk %}"
+                class="btn btn-outline-danger"
+            >
+                <i class="bi bi-trash me-2"></i>
+                Supprimer
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <section class="hcp-metric-grid mb-4">
+
+        <article class="hcp-metric-card">
+            <span class="hcp-round-icon"><i class="bi bi-database"></i></span>
+            <div>
+                <div class="small text-muted">Nombre de lignes</div>
+                <div class="hcp-metric-value">{{ jeu_donnees.nombre_lignes|default:"0" }}</div>
+            </div>
+        </article>
+
+        <article class="hcp-metric-card">
+            <span class="hcp-round-icon"><i class="bi bi-grid"></i></span>
+            <div>
+                <div class="small text-muted">Nombre de colonnes</div>
+                <div class="hcp-metric-value">{{ jeu_donnees.nombre_colonnes|default:"0" }}</div>
+            </div>
+        </article>
+
+        <article class="hcp-metric-card">
+            <span class="hcp-round-icon"><i class="bi bi-filetype-csv"></i></span>
+            <div>
+                <div class="small text-muted">Format d’origine</div>
+                <div class="hcp-metric-value">
+                    {{ jeu_donnees.get_format_display|default:jeu_donnees.format }}
+                </div>
+            </div>
+        </article>
+
+        <article class="hcp-metric-card">
+            <span class="hcp-round-icon"><i class="bi bi-file-earmark"></i></span>
+            <div>
+                <div class="small text-muted">Taille du fichier</div>
+                <div class="hcp-metric-value">{{ jeu_donnees.taille_fichier|filesizeformat }}</div>
+            </div>
+        </article>
+
+    </section>
+
+
+    <section class="hcp-tabs-card mb-4">
+
+        <ul class="nav nav-tabs" role="tablist">
+
+            <li class="nav-item">
+                <button
+                    class="nav-link active"
+                    data-bs-toggle="tab"
+                    data-bs-target="#dataset-informations"
+                    type="button"
+                >
+                    Informations
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button
+                    class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#dataset-colonnes"
+                    type="button"
+                >
+                    Colonnes détectées
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button
+                    class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#dataset-apercu"
+                    type="button"
+                >
+                    Aperçu des données
+                </button>
+            </li>
+
+        </ul>
+
+
+        <div class="tab-content pt-4">
+
+            <div class="tab-pane fade show active" id="dataset-informations">
+
+                <div class="hcp-info-grid">
+
+                    <div class="hcp-info-item">
+                        <div class="hcp-info-label">Nom du fichier original</div>
+                        <div class="hcp-info-value">
+                            {{ jeu_donnees.nom_fichier_original|default:"Non renseigné" }}
+                        </div>
+                    </div>
+
+                    <div class="hcp-info-item">
+                        <div class="hcp-info-label">Date d’importation</div>
+                        <div class="hcp-info-value">
+                            {{ jeu_donnees.date_importation|date:"d/m/Y à H:i" }}
+                        </div>
+                    </div>
+
+                    <div class="hcp-info-item">
+                        <div class="hcp-info-label">Type de version</div>
+                        <div class="hcp-info-value">
+                            {{ jeu_donnees.get_type_version_display|default:"Version originale" }}
+                        </div>
+                    </div>
+
+                    <div class="hcp-info-item">
+                        <div class="hcp-info-label">Propriétaire</div>
+                        <div class="hcp-info-value">
+                            {{ jeu_donnees.proprietaire.get_full_name|default:jeu_donnees.proprietaire.email }}
+                        </div>
+                    </div>
+
+                    <div class="hcp-info-item">
+                        <div class="hcp-info-label">Stockage des données</div>
+                        <div class="hcp-info-value text-success">
+                            PostgreSQL
+                        </div>
+                    </div>
+
+                    <div class="hcp-info-item">
+                        <div class="hcp-info-label">Description</div>
+                        <div class="hcp-info-value">
+                            {{ jeu_donnees.description|default:"Aucune description" }}
+                        </div>
+                    </div>
+
+                </div>
+
+
+                {% if jeu_donnees.source_jeu_donnees %}
+
+                    <div class="alert alert-success mt-4 mb-0">
+
+                        <strong>Version nettoyée</strong><br>
+
+                        Cette version a été créée à partir du jeu de données :
+                        <a
+                            href="{% url 'datasets:detail' jeu_donnees.source_jeu_donnees.pk %}"
+                            class="alert-link"
+                        >
+                            {{ jeu_donnees.source_jeu_donnees.nom }}
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="tab-pane fade" id="dataset-colonnes">
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    {% for colonne in jeu_donnees.colonnes %}
+
+                        <span
+                            class="hcp-column-chip"
+                            title="{{ colonne }}"
+                        >
+                            {{ colonne }}
+                        </span>
+
+                    {% empty %}
+
+                        <span class="text-muted">
+                            Aucune colonne détectée.
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <div class="tab-pane fade" id="dataset-apercu">
+
+                <div class="table-responsive">
+
+                    <table class="table table-sm">
+
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                {% for colonne in jeu_donnees.colonnes|slice:":10" %}
+                                    <th>{{ colonne }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for ligne in apercu %}
+
+                                <tr>
+                                    <td class="text-muted">{{ ligne.numero }}</td>
+                                    {% for valeur in ligne.valeurs|slice:":10" %}
+                                        <td>
+                                            {% if valeur is None or valeur == "" %}
+                                                <span class="text-muted">Manquante</span>
+                                            {% else %}
+                                                {{ valeur }}
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+                                    <td colspan="11" class="text-center text-muted py-4">
+                                        Aucune donnée à afficher.
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="text-end mt-3">
+                    <a
+                        href="{% url 'datasets:apercu_complet' jeu_donnees.pk %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Afficher l’aperçu complet
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

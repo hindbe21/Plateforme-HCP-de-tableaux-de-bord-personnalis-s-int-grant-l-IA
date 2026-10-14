@@ -1,0 +1,333 @@
+<div class="row g-3">
+
+    <div class="col-xl-8">
+
+        <section class="panel p-4">
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+
+                <span class="hcp-round-icon">
+                    <i class="bi bi-sliders"></i>
+                </span>
+
+                <div>
+                    <h2 class="h5 text-hcp-burgundy fw-bold mb-1">
+                        Configurer la visualisation
+                    </h2>
+                    <p class="help mb-0">
+                        Définissez les paramètres du widget étape par étape.
+                    </p>
+                </div>
+
+            </div>
+
+            <form method="post" id="widgetForm" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+
+                    <div class="col-12" id="field-titre">
+                        <label class="form-label" for="{{ form.titre.id_for_label }}">
+                            {{ form.titre.label }}
+                        </label>
+                        {{ form.titre }}
+                        {% for error in form.titre.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6" id="field-type_widget">
+                        <label class="form-label" for="{{ form.type_widget.id_for_label }}">
+                            Type de visualisation
+                        </label>
+                        {{ form.type_widget }}
+                        {% for error in form.type_widget.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6" id="field-colonne_categorie">
+                        <label class="form-label" for="{{ form.colonne_categorie.id_for_label }}">
+                            {{ form.colonne_categorie.label }}
+                        </label>
+                        {{ form.colonne_categorie }}
+                        {% for error in form.colonne_categorie.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6" id="field-colonne_serie">
+                        <label class="form-label" for="{{ form.colonne_serie.id_for_label }}">
+                            {{ form.colonne_serie.label }}
+                        </label>
+                        {{ form.colonne_serie }}
+                        {% for error in form.colonne_serie.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6" id="field-colonne_mesure">
+                        <label class="form-label" for="{{ form.colonne_mesure.id_for_label }}">
+                            {{ form.colonne_mesure.label }}
+                        </label>
+                        {{ form.colonne_mesure }}
+                        {% for error in form.colonne_mesure.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6" id="field-agregation">
+                        <label class="form-label" for="{{ form.agregation.id_for_label }}">
+                            {{ form.agregation.label }}
+                        </label>
+                        {{ form.agregation }}
+                        {% for error in form.agregation.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6" id="field-ordre_tri">
+                        <label class="form-label" for="{{ form.ordre_tri.id_for_label }}">
+                            {{ form.ordre_tri.label }}
+                        </label>
+                        {{ form.ordre_tri }}
+                    </div>
+
+                    <div class="col-md-6" id="field-limite_resultats">
+                        <label class="form-label" for="{{ form.limite_resultats.id_for_label }}">
+                            {{ form.limite_resultats.label }}
+                        </label>
+                        {{ form.limite_resultats }}
+                    </div>
+
+                    <div class="col-md-6" id="field-nombre_classes">
+                        <label class="form-label" for="{{ form.nombre_classes.id_for_label }}">
+                            {{ form.nombre_classes.label }}
+                        </label>
+                        {{ form.nombre_classes }}
+                    </div>
+
+                    <div class="col-12" id="field-inclure_manquantes">
+                        <div class="form-check">
+                            {{ form.inclure_manquantes }}
+                            <label class="form-check-label" for="{{ form.inclure_manquantes.id_for_label }}">
+                                {{ form.inclure_manquantes.label }}
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+
+                    <button type="submit" class="btn btn-hcp-primary">
+                        <i class="bi bi-plus-lg me-2"></i>
+                        {{ texte_bouton }}
+                    </button>
+
+                    <a
+                        href="{% url 'dashboards:detail' tableau_bord.pk %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Annuler
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <section class="panel p-4 mt-3">
+
+            <h2 class="h6 text-hcp-burgundy fw-bold">
+                Types de visualisation disponibles
+            </h2>
+
+            <p class="help small">
+                Choisissez la représentation la plus adaptée à vos données.
+            </p>
+
+            <div class="row g-2">
+
+                <div class="col-6 col-md-4 col-xl">
+                    <div class="border rounded-3 text-center p-3 h-100">
+                        <i class="bi bi-speedometer2 text-hcp-orange fs-4"></i>
+                        <div class="small fw-bold mt-2">KPI</div>
+                        <div class="help small">Indicateur clé</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-xl">
+                    <div class="border rounded-3 text-center p-3 h-100">
+                        <i class="bi bi-bar-chart text-hcp-orange fs-4"></i>
+                        <div class="small fw-bold mt-2">Barres</div>
+                        <div class="help small">Comparaison</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-xl">
+                    <div class="border rounded-3 text-center p-3 h-100">
+                        <i class="bi bi-pie-chart text-hcp-orange fs-4"></i>
+                        <div class="small fw-bold mt-2">Anneau</div>
+                        <div class="help small">Part de tout</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-xl">
+                    <div class="border rounded-3 text-center p-3 h-100">
+                        <i class="bi bi-graph-up text-hcp-orange fs-4"></i>
+                        <div class="small fw-bold mt-2">Courbe</div>
+                        <div class="help small">Évolution</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-xl">
+                    <div class="border rounded-3 text-center p-3 h-100">
+                        <i class="bi bi-distribute-vertical text-hcp-orange fs-4"></i>
+                        <div class="small fw-bold mt-2">Histogramme</div>
+                        <div class="help small">Distribution</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-xl">
+                    <div class="border rounded-3 text-center p-3 h-100">
+                        <i class="bi bi-table text-hcp-orange fs-4"></i>
+                        <div class="small fw-bold mt-2">Tableau</div>
+                        <div class="help small">Détails</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <aside class="col-xl-4">
+
+        <section class="panel p-4">
+
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <span class="hcp-round-icon">
+                    <i class="bi bi-shield-check"></i>
+                </span>
+                <div>
+                    <h2 class="h6 text-hcp-burgundy fw-bold mb-1">
+                        Profil du jeu de données
+                    </h2>
+                    <p class="help small mb-0">
+                        {{ tableau_bord.jeu_donnees.nom }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="small text-muted mb-3">
+                {{ tableau_bord.jeu_donnees.nombre_lignes }} lignes
+                · {{ tableau_bord.jeu_donnees.nombre_colonnes }} colonnes
+            </div>
+
+            <div class="table-responsive" style="max-height: 560px;">
+
+                <table class="table table-sm profile-table">
+
+                    <thead>
+                        <tr>
+                            <th>Colonne</th>
+                            <th>Profil</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for nom, profil in profils_colonnes.items %}
+
+                            <tr>
+                                <td class="fw-semibold">{{ profil.nom }}</td>
+                                <td>
+                                    <div>
+                                        {{ profil.type }}
+                                        {% if profil.semble_identifiant %}
+                                            <span class="badge text-bg-light border">ID</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-muted">
+                                        {% if profil.exemples %}
+                                            {{ profil.exemples|join:", " }}
+                                        {% else %}
+                                            Aucun exemple
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-muted">
+                                        {{ profil.nombre_uniques }} distincte(s),
+                                        {{ profil.nombre_manquantes }} manquante(s)
+                                    </div>
+                                </td>
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td colspan="2" class="text-muted">
+                                    Profil indisponible.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <a
+                href="{% url 'datasets:detail' tableau_bord.jeu_donnees.pk %}"
+                class="hcp-card-link d-inline-block mt-3"
+            >
+                Voir le jeu de données
+                <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+
+        </section>
+
+
+        {% if not form.instance.pk %}
+
+            <section class="panel p-4 mt-3">
+
+                <h2 class="h6 text-hcp-burgundy fw-bold">
+                    Besoin d’inspiration ?
+                </h2>
+
+                <p class="help small">
+                    Basculez sur l’onglet « Suggestions par IA » pour découvrir
+                    les widgets les plus pertinents pour ce fichier.
+                </p>
+
+                <button
+                    type="button"
+                    class="btn btn-dashboard-outline w-100"
+                    data-bs-toggle="tab"
+                    data-bs-target="#mode-ia"
+                >
+                    Découvrir les suggestions IA
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+
+            </section>
+
+        {% endif %}
+
+    </aside>
+
+</div>

@@ -1,0 +1,1684 @@
+{% extends "base.html" %}
+
+{% block title %}
+Nettoyer {{ jeu_donnees.nom }} | Plateforme HCP
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .clean-page {
+        --clean-orange: #f28c38;
+        --clean-burgundy: #7a1e48;
+        --clean-violet: #74133f;
+        --clean-border: #e7e9ee;
+        --clean-muted: #6c757d;
+    }
+
+    .clean-page .step-title {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
+
+    .clean-page .step-number {
+        display: inline-flex;
+        width: 2.1rem;
+        height: 2.1rem;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--clean-burgundy);
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .clean-page .quality-card {
+        border: 1px solid var(--clean-border);
+        border-radius: 1rem;
+        background: #fff;
+        height: 100%;
+    }
+
+    .clean-page .quality-number {
+        font-size: 2rem;
+        font-weight: 750;
+        line-height: 1;
+    }
+
+    .clean-page .problem-card {
+        border: 1px solid var(--clean-border);
+        border-radius: 1rem;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .clean-page .problem-header {
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid var(--clean-border);
+        background: #fafafa;
+    }
+
+    .clean-page .problem-body {
+        padding: 1.2rem;
+    }
+
+    .clean-page .recommendation {
+        border-left: 4px solid var(--clean-orange);
+        background: #fff8f1;
+        padding: .8rem 1rem;
+        border-radius: .4rem;
+    }
+
+    .clean-page .choice-box {
+        border: 1px solid var(--clean-border);
+        border-radius: .75rem;
+        padding: .85rem 1rem;
+        margin-bottom: .65rem;
+    }
+
+    .clean-page .preview-panel {
+        border: 1px solid rgba(116, 19, 63, .20);
+        border-radius: 1rem;
+        background: #fffafb;
+    }
+
+    .clean-page .table-responsive {
+        max-height: 420px;
+    }
+
+    .clean-page .sticky-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        border-top: 1px solid var(--clean-border);
+        background: rgba(255, 255, 255, .96);
+        backdrop-filter: blur(6px);
+    }
+
+    .clean-page details > summary {
+        cursor: pointer;
+    }
+
+    .clean-page .badge-soft {
+        display: inline-block;
+        border: 1px solid var(--clean-border);
+        border-radius: 999px;
+        padding: .3rem .65rem;
+        background: #fff;
+        color: #495057;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="clean-page hcp-clean-page">
+
+    <div class="mb-4">
+        <a
+            href="{% url 'datasets:detail' jeu_donnees.pk %}"
+            class="text-decoration-none"
+        >
+            ← Retour au jeu de données
+        </a>
+
+        <h1 class="page-title mt-3 mb-1">
+            Nettoyage des données
+        </h1>
+
+        <p class="text-muted mb-3">
+            Jeu analysé :
+            <strong>{{ jeu_donnees.nom }}</strong>
+        </p>
+
+        <div class="alert alert-light border mb-0">
+            <strong>Les données originales resteront intactes.</strong>
+            Les corrections sont d'abord prévisualisées.
+            Une nouvelle version sera créée seulement après confirmation.
+        </div>
+    </div>
+
+
+    {# ===================================================== #}
+    {# ÉTAPE 1 : ANALYSE                                    #}
+    {# ===================================================== #}
+
+    <section class="mb-5">
+
+        <div class="step-title mb-3">
+            <span class="step-number">1</span>
+
+            <div>
+                <h2 class="h4 mb-1">
+                    Analyse automatique du fichier
+                </h2>
+
+                <p class="text-muted mb-0">
+                    La plateforme a détecté les problèmes suivants.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="quality-card p-3">
+                    <div class="text-muted small mb-2">
+                        Doublons
+                    </div>
+
+                    <div class="quality-number">
+                        {{ diagnostic.doublons }}
+                    </div>
+
+                    <div class="small text-muted mt-2">
+                        Lignes répétées
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="quality-card p-3">
+                    <div class="text-muted small mb-2">
+                        Valeurs manquantes
+                    </div>
+
+                    <div class="quality-number">
+                        {{ diagnostic.valeurs_manquantes }}
+                    </div>
+
+                    <div class="small text-muted mt-2">
+                        Cellules sans valeur
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="quality-card p-3">
+                    <div class="text-muted small mb-2">
+                        Lignes entièrement vides
+                    </div>
+
+                    <div class="quality-number">
+                        {{ diagnostic.lignes_vides }}
+                    </div>
+
+                    <div class="small text-muted mt-2">
+                        Lignes sans information
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="quality-card p-3">
+                    <div class="text-muted small mb-2">
+                        Valeurs inhabituelles
+                    </div>
+
+                    <div class="quality-number">
+                        {{ diagnostic.nombre_valeurs_aberrantes }}
+                    </div>
+
+                    <div class="small text-muted mt-2">
+                        Valeurs à vérifier
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="accordion" id="diagnosticAccordion">
+
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#diagnosticManquantes"
+                    >
+                        Détail des valeurs manquantes
+                    </button>
+                </h3>
+
+                <div
+                    id="diagnosticManquantes"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#diagnosticAccordion"
+                >
+                    <div class="accordion-body p-0">
+
+                        {% if diagnostic.valeurs_manquantes > 0 %}
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Colonne</th>
+                                            <th>Type</th>
+                                            <th>Nombre</th>
+                                            <th>Pourcentage</th>
+                                            <th>Niveau</th>
+                                            <th>Exemples</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for colonne in diagnostic.colonnes %}
+                                            {% if colonne.manquantes > 0 %}
+                                                <tr>
+                                                    <td class="fw-semibold">
+                                                        {{ colonne.nom }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ colonne.type|capfirst }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ colonne.manquantes }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ colonne.pourcentage }} %
+                                                    </td>
+
+                                                    <td>
+                                                        <span class="badge-soft">
+                                                            {{ colonne.niveau }}
+                                                        </span>
+                                                    </td>
+
+                                                    <td>
+                                                        {% for numero in colonne.lignes_exemples %}
+                                                            <span class="badge-soft me-1">
+                                                                Ligne {{ numero }}
+                                                            </span>
+                                                        {% empty %}
+                                                            —
+                                                        {% endfor %}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        {% else %}
+
+                            <div class="p-3">
+                                <div class="alert alert-success mb-0">
+                                    Aucune valeur manquante détectée.
+                                </div>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#diagnosticAberrantes"
+                    >
+                        Détail des valeurs inhabituelles
+                    </button>
+                </h3>
+
+                <div
+                    id="diagnosticAberrantes"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#diagnosticAccordion"
+                >
+                    <div class="accordion-body">
+
+                        <div class="alert alert-warning">
+                            Une valeur inhabituelle n'est pas forcément fausse.
+                            Elle peut représenter un cas rare mais réel.
+                        </div>
+
+                        {% if diagnostic.valeurs_aberrantes %}
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Colonne</th>
+                                            <th>Nombre</th>
+                                            <th>Intervalle habituel</th>
+                                            <th>Exemples</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for element in diagnostic.valeurs_aberrantes %}
+                                            <tr>
+                                                <td class="fw-semibold">
+                                                    {{ element.colonne }}
+                                                </td>
+
+                                                <td>
+                                                    {{ element.nombre }}
+                                                </td>
+
+                                                <td>
+                                                    {{ element.borne_basse }}
+                                                    à
+                                                    {{ element.borne_haute }}
+                                                </td>
+
+                                                <td>
+                                                    {% for exemple in element.exemples %}
+                                                        <div class="small mb-1">
+                                                            Ligne {{ exemple.ligne }} :
+                                                            <strong>{{ exemple.valeur }}</strong>
+                                                        </div>
+                                                    {% empty %}
+                                                        —
+                                                    {% endfor %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        {% else %}
+
+                            <div class="alert alert-success mb-0">
+                                Aucune valeur inhabituelle détectée.
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#diagnosticDoublons"
+                    >
+                        Aperçu des doublons
+                    </button>
+                </h3>
+
+                <div
+                    id="diagnosticDoublons"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#diagnosticAccordion"
+                >
+                    <div class="accordion-body p-0">
+
+                        {% if diagnostic.apercu_doublons %}
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ligne</th>
+
+                                            {% for colonne in colonnes_avant %}
+                                                <th>{{ colonne }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for ligne in diagnostic.apercu_doublons %}
+                                            <tr>
+                                                <td class="fw-semibold">
+                                                    {{ ligne.numero }}
+                                                </td>
+
+                                                {% for valeur in ligne.valeurs %}
+                                                    <td>
+                                                        {% if valeur is None %}
+                                                            <span class="text-muted">Vide</span>
+                                                        {% else %}
+                                                            {{ valeur }}
+                                                        {% endif %}
+                                                    </td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        {% else %}
+
+                            <div class="p-3">
+                                <div class="alert alert-success mb-0">
+                                    Aucun doublon exact détecté.
+                                </div>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    {# ===================================================== #}
+    {# ÉTAPE 2 : CORRECTIONS                                #}
+    {# ===================================================== #}
+
+    <form method="post" novalidate id="cleaningForm">
+        {% csrf_token %}
+
+        <section class="mb-5">
+
+            <div class="step-title mb-3">
+                <span class="step-number">2</span>
+
+                <div>
+                    <h2 class="h4 mb-1">
+                        Vérification et corrections
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Choisissez le traitement adapté à chaque problème.
+                    </p>
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for erreur in form.non_field_errors %}
+                        <div>{{ erreur }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
+            <div class="problem-card mb-3">
+                <div class="problem-header">
+                    <h3 class="h5 mb-1">
+                        Améliorations générales
+                    </h3>
+
+                    <p class="text-muted small mb-0">
+                        Ces traitements corrigent la forme des données.
+                    </p>
+                </div>
+
+                <div class="problem-body">
+                    <div class="form-check mb-3">
+                        {{ form.nettoyer_textes }}
+
+                        <label
+                            class="form-check-label"
+                            for="{{ form.nettoyer_textes.id_for_label }}"
+                        >
+                            {{ form.nettoyer_textes.label }}
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        {{ form.convertir_nombres }}
+
+                        <label
+                            class="form-check-label"
+                            for="{{ form.convertir_nombres.id_for_label }}"
+                        >
+                            {{ form.convertir_nombres.label }}
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        {{ form.convertir_dates }}
+
+                        <label
+                            class="form-check-label"
+                            for="{{ form.convertir_dates.id_for_label }}"
+                        >
+                            {{ form.convertir_dates.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="problem-card mb-3">
+                <div class="problem-header">
+                    <div class="d-flex justify-content-between gap-3">
+                        <div>
+                            <h3 class="h5 mb-1">
+                                Lignes entièrement vides
+                            </h3>
+
+                            <p class="text-muted small mb-0">
+                                {{ diagnostic.lignes_vides }}
+                                ligne(s) ne contiennent aucune information.
+                            </p>
+                        </div>
+
+                        <span class="badge-soft">
+                            {{ diagnostic.lignes_vides }} détectée(s)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="problem-body">
+                    <div class="recommendation mb-3">
+                        <strong>Recommandation :</strong>
+                        supprimer ces lignes, car elles ne contiennent
+                        aucune information exploitable.
+                    </div>
+
+                    {% for choix in form.supprimer_lignes_vides %}
+                        <div class="choice-box">
+                            <div class="form-check mb-0">
+                                {{ choix.tag }}
+
+                                <label
+                                    class="form-check-label ms-1"
+                                    for="{{ choix.id_for_label }}"
+                                >
+                                    {{ choix.choice_label }}
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            <div class="problem-card mb-3">
+                <div class="problem-header">
+                    <div class="d-flex justify-content-between gap-3">
+                        <div>
+                            <h3 class="h5 mb-1">
+                                Doublons
+                            </h3>
+
+                            <p class="text-muted small mb-0">
+                                {{ diagnostic.doublons }}
+                                répétition(s) ont été détectées.
+                            </p>
+                        </div>
+
+                        <span class="badge-soft">
+                            {{ diagnostic.doublons }} détecté(s)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="problem-body">
+
+                    <div class="recommendation mb-3">
+                        <strong>Choix prudent :</strong>
+                        comparer toutes les colonnes et supprimer seulement
+                        les lignes entièrement identiques.
+                    </div>
+
+                    <h4 class="h6">
+                        Que faire des doublons ?
+                    </h4>
+
+                    {% for choix in form.action_doublons %}
+                        <div class="choice-box">
+                            <div class="form-check mb-0">
+                                {{ choix.tag }}
+
+                                <label
+                                    class="form-check-label ms-1"
+                                    for="{{ choix.id_for_label }}"
+                                >
+                                    {{ choix.choice_label }}
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <h4 class="h6 mt-4">
+                        Comment comparer les lignes ?
+                    </h4>
+
+                    {% for choix in form.mode_doublons %}
+                        <div class="choice-box">
+                            <div class="form-check mb-0">
+                                {{ choix.tag }}
+
+                                <label
+                                    class="form-check-label ms-1"
+                                    for="{{ choix.id_for_label }}"
+                                >
+                                    {{ choix.choice_label }}
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div
+                        id="duplicateColumnsBox"
+                        class="border rounded p-3 mt-3"
+                    >
+                        <div class="fw-semibold mb-2">
+                            Colonnes importantes
+                        </div>
+
+                        <p class="small text-muted">
+                            Sélectionnez des identifiants, codes ou numéros
+                            de dossier. Ne choisissez pas une colonne générale
+                            comme une ville.
+                        </p>
+
+                        {% for choix in form.colonnes_doublons %}
+                            <div class="form-check mb-2">
+                                {{ choix.tag }}
+
+                                <label
+                                    class="form-check-label"
+                                    for="{{ choix.id_for_label }}"
+                                >
+                                    {{ choix.choice_label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+
+                        {% for erreur in form.colonnes_doublons.errors %}
+                            <div class="text-danger small">
+                                {{ erreur }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+
+
+            {% if sections_structurelles %}
+
+                <div class="problem-card mb-3">
+                    <div class="problem-header">
+                        <div class="d-flex justify-content-between gap-3">
+                            <div>
+                                <h3 class="h5 mb-1">
+                                    Colonnes vides ou suspectes
+                                </h3>
+
+                                <p class="text-muted small mb-0">
+                                    Vérifiez les colonnes entièrement vides,
+                                    presque vides, constantes ou dupliquées.
+                                </p>
+                            </div>
+
+                            <span class="badge-soft">
+                                {{ diagnostic.nombre_colonnes_structurelles }}
+                                détectée(s)
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="problem-body">
+                        <div class="recommendation mb-3">
+                            <strong>Important :</strong>
+                            une fusion remplit uniquement les cellules vides
+                            de la destination. Une valeur existante n'est jamais
+                            écrasée.
+                        </div>
+
+                        <div class="accordion" id="structureAccordion">
+
+                            {% for section in sections_structurelles %}
+
+                                <div class="accordion-item">
+                                    <h4 class="accordion-header">
+                                        <button
+                                            class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#structure{{ forloop.counter }}"
+                                        >
+                                            {{ section.nom }}
+                                            — {{ section.raisons|join:", " }}
+                                        </button>
+                                    </h4>
+
+                                    <div
+                                        id="structure{{ forloop.counter }}"
+                                        class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                                        data-bs-parent="#structureAccordion"
+                                    >
+                                        <div class="accordion-body">
+
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-4">
+                                                    <div class="border rounded p-3 h-100">
+                                                        <div class="text-muted small">
+                                                            Valeurs manquantes
+                                                        </div>
+                                                        <div class="fw-semibold">
+                                                            {{ section.manquantes }}
+                                                            ({{ section.pourcentage }} %)
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="border rounded p-3 h-100">
+                                                        <div class="text-muted small">
+                                                            Valeurs distinctes
+                                                        </div>
+                                                        <div class="fw-semibold">
+                                                            {{ section.nombre_uniques }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="border rounded p-3 h-100">
+                                                        <div class="text-muted small">
+                                                            Type détecté
+                                                        </div>
+                                                        <div class="fw-semibold">
+                                                            {{ section.type|title }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="recommendation mb-3">
+                                                <strong>Recommandation :</strong>
+                                                {{ section.recommandation }}
+
+                                                {% if section.cible_recommandee %}
+                                                    <div class="mt-1">
+                                                        Destination proposée :
+                                                        <strong>
+                                                            {{ section.cible_recommandee }}
+                                                        </strong>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+
+                                            {% if section.lignes_non_vides %}
+                                                <div class="table-responsive mb-3">
+                                                    <table class="table table-sm table-bordered align-middle mb-0">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Ligne</th>
+                                                                <th>Valeur non vide</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for exemple in section.lignes_non_vides %}
+                                                                <tr>
+                                                                    <td>{{ exemple.ligne }}</td>
+                                                                    <td>{{ exemple.valeur }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="mb-3">
+                                                <label
+                                                    class="form-label fw-semibold"
+                                                    for="{{ section.champ_action.id_for_label }}"
+                                                >
+                                                    Action
+                                                </label>
+                                                {{ section.champ_action }}
+
+                                                {% for erreur in section.champ_action.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {{ erreur }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+
+                                            <div
+                                                id="box_{{ section.champ_cible.name }}"
+                                                class="structure-target-box"
+                                                data-action-field="{{ section.champ_action.id_for_label }}"
+                                            >
+                                                <label
+                                                    class="form-label fw-semibold"
+                                                    for="{{ section.champ_cible.id_for_label }}"
+                                                >
+                                                    {{ section.champ_cible.label }}
+                                                </label>
+                                                {{ section.champ_cible }}
+
+                                                <div class="form-text">
+                                                    Les valeurs seront déplacées seulement
+                                                    lorsque cette destination est vide.
+                                                </div>
+
+                                                {% for erreur in section.champ_cible.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {{ erreur }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+
+            {% endif %}
+
+
+            <div class="problem-card mb-3">
+                <div class="problem-header">
+                    <h3 class="h5 mb-1">
+                        Valeurs manquantes
+                    </h3>
+
+                    <p class="text-muted small mb-0">
+                        Chaque colonne possède ses propres choix compatibles.
+                    </p>
+                </div>
+
+                <div class="problem-body">
+
+                    {% if sections_manquantes %}
+
+                        <div class="accordion" id="missingAccordion">
+
+                            {% for section in sections_manquantes %}
+
+                                <div class="accordion-item">
+                                    <h4 class="accordion-header">
+                                        <button
+                                            class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#missing{{ forloop.counter }}"
+                                        >
+                                            {{ section.colonne }}
+                                            — {{ section.manquantes }} valeur(s)
+                                            manquante(s)
+                                        </button>
+                                    </h4>
+
+                                    <div
+                                        id="missing{{ forloop.counter }}"
+                                        class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                                        data-bs-parent="#missingAccordion"
+                                    >
+                                        <div class="accordion-body">
+
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-4">
+                                                    <div class="border rounded p-3 h-100">
+                                                        <div class="text-muted small">
+                                                            Type détecté
+                                                        </div>
+
+                                                        <div class="fw-semibold">
+                                                            {{ section.type|capfirst }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="border rounded p-3 h-100">
+                                                        <div class="text-muted small">
+                                                            Valeurs manquantes
+                                                        </div>
+
+                                                        <div class="fw-semibold">
+                                                            {{ section.manquantes }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="border rounded p-3 h-100">
+                                                        <div class="text-muted small">
+                                                            Pourcentage
+                                                        </div>
+
+                                                        <div class="fw-semibold">
+                                                            {{ section.pourcentage }} %
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="recommendation mb-3">
+                                                <div class="fw-semibold mb-1">
+                                                    Recommandation du système :
+                                                    {{ section.recommandation_libelle }}
+                                                </div>
+
+                                                <div class="small">
+                                                    {{ section.recommandation }}
+                                                </div>
+                                            </div>
+
+                                            <label
+                                                class="form-label fw-semibold"
+                                                for="{{ section.champ_action.id_for_label }}"
+                                            >
+                                                Choisir le traitement
+                                            </label>
+
+                                            {{ section.champ_action }}
+
+                                            {% for erreur in section.champ_action.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {{ erreur }}
+                                                </div>
+                                            {% endfor %}
+
+                                            <div
+                                                class="custom-value-box mt-3"
+                                                data-action-field="{{ section.champ_action.id_for_label }}"
+                                            >
+                                                <label
+                                                    class="form-label"
+                                                    for="{{ section.champ_valeur.id_for_label }}"
+                                                >
+                                                    {{ section.champ_valeur.label }}
+                                                </label>
+
+                                                {{ section.champ_valeur }}
+
+                                                {% for erreur in section.champ_valeur.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {{ erreur }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+
+                                            {% if section.manquantes > 0 %}
+                                                <div class="small text-muted mt-3">
+                                                    Lignes d'exemple :
+                                                    {% for numero in section.lignes_exemples %}
+                                                        <span class="badge-soft me-1">
+                                                            {{ numero }}
+                                                        </span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="alert alert-success mb-0">
+                            Aucune valeur manquante à traiter.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+            </div>
+
+
+            <div class="problem-card mb-3">
+                <div class="problem-header">
+                    <h3 class="h5 mb-1">
+                        Valeurs inhabituelles
+                    </h3>
+
+                    <p class="text-muted small mb-0">
+                        Vérifiez les exemples avant toute modification.
+                    </p>
+                </div>
+
+                <div class="problem-body">
+
+                    {% if sections_aberrantes %}
+
+                        {% for section in sections_aberrantes %}
+
+                            <div class="border rounded p-3 mb-3">
+
+                                <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                                    <div>
+                                        <h4 class="h6 mb-1">
+                                            {{ section.colonne }}
+                                        </h4>
+
+                                        <div class="small text-muted">
+                                            {{ section.nombre }} valeur(s)
+                                            hors de l'intervalle
+                                            {{ section.borne_basse }}
+                                            à
+                                            {{ section.borne_haute }}
+                                        </div>
+                                    </div>
+
+                                    <span class="badge-soft">
+                                        À vérifier
+                                    </span>
+                                </div>
+
+                                <div class="recommendation mb-3">
+                                    <div class="fw-semibold mb-1">
+                                        Recommandation du système :
+                                        {{ section.recommandation_libelle }}
+                                    </div>
+
+                                    <div class="small">
+                                        {{ section.recommandation }}
+                                    </div>
+                                </div>
+
+                                {% if section.exemples %}
+                                    <div class="small mb-3">
+                                        <strong>Exemples :</strong>
+
+                                        {% for exemple in section.exemples %}
+                                            <span class="badge-soft me-1">
+                                                Ligne {{ exemple.ligne }} :
+                                                {{ exemple.valeur }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                <label
+                                    class="form-label fw-semibold"
+                                    for="{{ section.champ_action.id_for_label }}"
+                                >
+                                    Choisir le traitement
+                                </label>
+
+                                {{ section.champ_action }}
+
+                                {% for erreur in section.champ_action.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ erreur }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="alert alert-success mb-0">
+                            Aucune valeur inhabituelle à traiter.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+            </div>
+
+
+            <div class="problem-card">
+                <div class="problem-header">
+                    <h3 class="h5 mb-1">
+                        Nom de la nouvelle version
+                    </h3>
+
+                    <p class="text-muted small mb-0">
+                        Le jeu original restera disponible.
+                    </p>
+                </div>
+
+                <div class="problem-body">
+                    <label
+                        class="form-label fw-semibold"
+                        for="{{ form.nom_version.id_for_label }}"
+                    >
+                        {{ form.nom_version.label }}
+                    </label>
+
+                    {{ form.nom_version }}
+
+                    {% for erreur in form.nom_version.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ erreur }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </section>
+
+
+        <div class="sticky-actions py-3">
+            <div class="d-flex flex-wrap justify-content-end gap-2">
+
+                <a
+                    href="{% url 'datasets:detail' jeu_donnees.pk %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Annuler
+                </a>
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="apercu"
+                    class="btn btn-primary"
+                >
+                    Prévisualiser les corrections
+                </button>
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="creer"
+                    class="btn btn-success"
+                    {% if not apercu_disponible %}disabled{% endif %}
+                    title="{% if not apercu_disponible %}Prévisualisez d'abord les corrections{% else %}Créer la nouvelle version nettoyée{% endif %}"
+                >
+                    Créer la nouvelle version
+                </button>
+
+            </div>
+
+            {% if not apercu_disponible %}
+                <div class="small text-muted text-end mt-2">
+                    Prévisualisez d'abord les corrections pour activer
+                    la création de la nouvelle version.
+                </div>
+            {% endif %}
+        </div>
+
+
+        {# ================================================= #}
+        {# ÉTAPE 3 : PRÉVISUALISATION                       #}
+        {# ================================================= #}
+
+        {% if apercu_disponible %}
+
+            <section class="mt-5 mb-5" id="previewSection">
+
+                <div class="step-title mb-3">
+                    <span class="step-number">3</span>
+
+                    <div>
+                        <h2 class="h4 mb-1">
+                            Prévisualisation avant / après
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Rien n'est encore enregistré à cette étape.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="preview-panel p-4">
+
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="quality-card p-3">
+                                <div class="text-muted small">
+                                    Lignes
+                                </div>
+
+                                <div class="fw-bold fs-5">
+                                    {{ resume_apercu.lignes_avant }}
+                                    →
+                                    {{ resume_apercu.lignes_apres }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="quality-card p-3">
+                                <div class="text-muted small">
+                                    Doublons supprimés
+                                </div>
+
+                                <div class="fw-bold fs-5">
+                                    {{ resume_apercu.doublons_supprimes }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="quality-card p-3">
+                                <div class="text-muted small">
+                                    Valeurs manquantes traitées
+                                </div>
+
+                                <div class="fw-bold fs-5">
+                                    {{ resume_apercu.valeurs_manquantes_traitees }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="quality-card p-3">
+                                <div class="text-muted small">
+                                    Valeurs inhabituelles modifiées
+                                </div>
+
+                                <div class="fw-bold fs-5">
+                                    {{ resume_apercu.valeurs_aberrantes_traitees }}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-6">
+                            <div class="quality-card p-3">
+                                <h3 class="h6 mb-3">
+                                    Comparaison de la qualité
+                                </h3>
+
+                                <canvas
+                                    id="qualityComparisonChart"
+                                    height="180"
+                                ></canvas>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="quality-card p-3">
+                                <h3 class="h6 mb-3">
+                                    Résumé des changements
+                                </h3>
+
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle">
+                                        <tbody>
+                                            <tr>
+                                                <th>Lignes vides supprimées</th>
+                                                <td>
+                                                    {{ resume_apercu.lignes_vides_supprimees }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Lignes incomplètes supprimées</th>
+                                                <td>
+                                                    {{ resume_apercu.lignes_incompletes_supprimees }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Lignes inhabituelles supprimées</th>
+                                                <td>
+                                                    {{ resume_apercu.lignes_aberrantes_supprimees }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Colonnes numériques converties</th>
+                                                <td>
+                                                    {% if resume_apercu.nombres_convertis %}
+                                                        {{ resume_apercu.nombres_convertis|join:", " }}
+                                                    {% else %}
+                                                        Aucune
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+
+
+                                            <tr>
+                                                <th>Colonnes avant / après</th>
+                                                <td>
+                                                    {{ resume_apercu.colonnes_avant }}
+                                                    →
+                                                    {{ resume_apercu.colonnes_apres }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Colonnes supprimées</th>
+                                                <td>
+                                                    {% if resume_apercu.colonnes_supprimees %}
+                                                        {{ resume_apercu.colonnes_supprimees|join:", " }}
+                                                    {% else %}
+                                                        Aucune
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Cellules déplacées</th>
+                                                <td>
+                                                    {{ resume_apercu.cellules_deplacees }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Colonnes de dates converties</th>
+                                                <td>
+                                                    {% if resume_apercu.dates_converties %}
+                                                        {{ resume_apercu.dates_converties|join:", " }}
+                                                    {% else %}
+                                                        Aucune
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <ul
+                        class="nav nav-tabs"
+                        id="previewTabs"
+                        role="tablist"
+                    >
+                        <li class="nav-item" role="presentation">
+                            <button
+                                class="nav-link active"
+                                data-bs-toggle="tab"
+                                data-bs-target="#beforeTable"
+                                type="button"
+                            >
+                                Données originales
+                            </button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <button
+                                class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#afterTable"
+                                type="button"
+                            >
+                                Après nettoyage
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content bg-white border border-top-0 rounded-bottom">
+
+                        <div
+                            class="tab-pane fade show active"
+                            id="beforeTable"
+                        >
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ligne</th>
+
+                                            {% for colonne in colonnes_apres %}
+                                                <th>{{ colonne }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for ligne in apercu_avant %}
+                                            <tr>
+                                                <td class="fw-semibold">
+                                                    {{ ligne.numero }}
+                                                </td>
+
+                                                {% for valeur in ligne.valeurs %}
+                                                    <td>
+                                                        {% if valeur is None %}
+                                                            <span class="text-muted">Vide</span>
+                                                        {% else %}
+                                                            {{ valeur }}
+                                                        {% endif %}
+                                                    </td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div
+                            class="tab-pane fade"
+                            id="afterTable"
+                        >
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ligne</th>
+
+                                            {% for colonne in jeu_donnees.colonnes %}
+                                                <th>{{ colonne }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for ligne in apercu_apres %}
+                                            <tr>
+                                                <td class="fw-semibold">
+                                                    {{ ligne.numero }}
+                                                </td>
+
+                                                {% for valeur in ligne.valeurs %}
+                                                    <td>
+                                                        {% if valeur is None %}
+                                                            <span class="text-muted">Vide</span>
+                                                        {% else %}
+                                                            {{ valeur }}
+                                                        {% endif %}
+                                                    </td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="alert alert-success mt-4 mb-0">
+                        Vérifiez les résultats, puis cliquez sur
+                        <strong>Créer la nouvelle version</strong>.
+                    </div>
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+    </form>
+
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Afficher les colonnes des doublons uniquement
+    // lorsque la comparaison personnalisée est choisie.
+    const duplicateModeInputs = document.querySelectorAll(
+        'input[name="mode_doublons"]'
+    );
+    const duplicateColumnsBox = document.getElementById(
+        "duplicateColumnsBox"
+    );
+
+    function updateDuplicateColumns() {
+        const selected = document.querySelector(
+            'input[name="mode_doublons"]:checked'
+        );
+
+        if (!duplicateColumnsBox || !selected) {
+            return;
+        }
+
+        duplicateColumnsBox.classList.toggle(
+            "d-none",
+            selected.value !== "COLONNES"
+        );
+    }
+
+    duplicateModeInputs.forEach(function (input) {
+        input.addEventListener(
+            "change",
+            updateDuplicateColumns
+        );
+    });
+
+    updateDuplicateColumns();
+
+
+    // Afficher la destination uniquement pour une fusion.
+    document.querySelectorAll(
+        ".structure-target-box"
+    ).forEach(function (box) {
+        const actionField = document.getElementById(
+            box.dataset.actionField
+        );
+
+        if (!actionField) {
+            return;
+        }
+
+        function updateStructureTarget() {
+            box.classList.toggle(
+                "d-none",
+                actionField.value
+                !== "FUSIONNER_SUPPRIMER"
+            );
+        }
+
+        actionField.addEventListener(
+            "change",
+            updateStructureTarget
+        );
+
+        updateStructureTarget();
+    });
+
+
+    // Afficher le champ personnalisé uniquement
+    // quand l'utilisateur choisit "Valeur personnalisée".
+    document.querySelectorAll(
+        ".custom-value-box"
+    ).forEach(function (box) {
+        const fieldId = box.dataset.actionField;
+        const actionField = document.getElementById(fieldId);
+
+        if (!actionField) {
+            return;
+        }
+
+        function updateCustomField() {
+            box.classList.toggle(
+                "d-none",
+                actionField.value !== "VALEUR"
+            );
+        }
+
+        actionField.addEventListener(
+            "change",
+            updateCustomField
+        );
+
+        updateCustomField();
+    });
+
+
+    {% if apercu_disponible %}
+        // Descendre automatiquement vers l'aperçu.
+        const preview = document.getElementById(
+            "previewSection"
+        );
+
+        if (preview) {
+            preview.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+
+        // Graphique simple avant / après.
+        const chartCanvas = document.getElementById(
+            "qualityComparisonChart"
+        );
+
+        if (
+            chartCanvas
+            && typeof Chart !== "undefined"
+        ) {
+            new Chart(chartCanvas, {
+                type: "bar",
+                data: {
+                    labels: [
+                        "Doublons",
+                        "Valeurs manquantes",
+                        "Lignes vides",
+                        "Valeurs inhabituelles"
+                    ],
+                    datasets: [
+                        {
+                            label: "Avant",
+                            data: [
+                                {{ diagnostic.doublons }},
+                                {{ diagnostic.valeurs_manquantes }},
+                                {{ diagnostic.lignes_vides }},
+                                {{ diagnostic.nombre_valeurs_aberrantes }}
+                            ],
+                            backgroundColor: "rgba(122, 30, 72, 0.65)"
+                        },
+                        {
+                            label: "Après",
+                            data: [
+                                {{ diagnostic_apres.doublons }},
+                                {{ diagnostic_apres.valeurs_manquantes }},
+                                {{ diagnostic_apres.lignes_vides }},
+                                {{ diagnostic_apres.nombre_valeurs_aberrantes }}
+                            ],
+                            backgroundColor: "rgba(111, 66, 193, 0.65)"
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    {% endif %}
+});
+</script>
+
+{% if apercu_disponible %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endif %}
+
+{% endblock %}

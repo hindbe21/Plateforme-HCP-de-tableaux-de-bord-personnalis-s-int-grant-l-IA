@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Modifier la suggestion | Plateforme HCP
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+
+    <style>
+        .suggestion-editor {
+            width: min(1100px, calc(100vw - 2rem));
+            margin: 0 auto;
+        }
+
+        .suggestion-editor .editor-card,
+        .suggestion-editor .editor-section {
+            border: 1px solid #dfe4ea;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .suggestion-editor .editor-card {
+            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(16, 24, 40, .07);
+        }
+
+        .suggestion-editor .editor-section {
+            padding: 1.1rem;
+        }
+
+        .suggestion-editor .editor-help {
+            color: #667085;
+            font-size: .85rem;
+        }
+
+        .suggestion-editor .save-bar {
+            position: sticky;
+            bottom: 0;
+            z-index: 20;
+            border-top: 1px solid #dfe4ea;
+            background: rgba(255, 255, 255, .96);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="suggestion-editor">
+
+    <a
+        href="{% url 'ai_assistant:espace_assiste' tableau_bord.pk %}"
+        class="text-decoration-none"
+    >
+        ← Retour à l’assistant
+    </a>
+
+    <div class="editor-card mt-3">
+
+        <div class="p-4 border-bottom">
+            <h1 class="h3 mb-1">
+                Modifier la suggestion
+            </h1>
+
+            <p class="editor-help mb-0">
+                Le widget ne sera créé qu’après votre validation explicite.
+                Toutes les colonnes proposées proviennent du fichier analysé.
+            </p>
+        </div>
+
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="p-4">
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+
+                <section class="editor-section mb-3">
+                    <h2 class="h5 mb-3">
+                        Présentation
+                    </h2>
+
+                    <div class="row g-3">
+                        <div class="col-lg-8">
+                            <label class="form-label fw-semibold" for="{{ form.titre.id_for_label }}">
+                                {{ form.titre.label }}
+                            </label>
+                            {{ form.titre }}
+                            {% for erreur in form.titre.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label class="form-label fw-semibold" for="{{ form.pertinence.id_for_label }}">
+                                {{ form.pertinence.label }}
+                            </label>
+                            {{ form.pertinence }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" for="{{ form.objectif.id_for_label }}">
+                                {{ form.objectif.label }}
+                            </label>
+                            {{ form.objectif }}
+                        </div>
+                    </div>
+                </section>
+
+
+                <section class="editor-section mb-3">
+                    <h2 class="h5 mb-3">
+                        Visualisation et colonnes
+                    </h2>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="{{ form.type_widget.id_for_label }}">
+                                {{ form.type_widget.label }}
+                            </label>
+                            {{ form.type_widget }}
+                            {% for erreur in form.type_widget.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="{{ form.agregation.id_for_label }}">
+                                {{ form.agregation.label }}
+                            </label>
+                            {{ form.agregation }}
+                            {% for erreur in form.agregation.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="{{ form.colonne_categorie.id_for_label }}">
+                                {{ form.colonne_categorie.label }}
+                            </label>
+                            {{ form.colonne_categorie }}
+                            {% for erreur in form.colonne_categorie.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="{{ form.colonne_mesure.id_for_label }}">
+                                {{ form.colonne_mesure.label }}
+                            </label>
+                            {{ form.colonne_mesure }}
+                            {% for erreur in form.colonne_mesure.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="{{ form.colonne_serie.id_for_label }}">
+                                {{ form.colonne_serie.label }}
+                            </label>
+                            {{ form.colonne_serie }}
+                            {% for erreur in form.colonne_serie.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="{{ form.ordre_tri.id_for_label }}">
+                                {{ form.ordre_tri.label }}
+                            </label>
+                            {{ form.ordre_tri }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="{{ form.limite_resultats.id_for_label }}">
+                                {{ form.limite_resultats.label }}
+                            </label>
+                            {{ form.limite_resultats }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="{{ form.nombre_classes.id_for_label }}">
+                                {{ form.nombre_classes.label }}
+                            </label>
+                            {{ form.nombre_classes }}
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.inclure_manquantes }}
+                                <label class="form-check-label" for="{{ form.inclure_manquantes.id_for_label }}">
+                                    {{ form.inclure_manquantes.label }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <section class="editor-section mb-3">
+                    <h2 class="h5 mb-1">
+                        Filtres du widget
+                    </h2>
+
+                    <p class="editor-help">
+                        Choisissez jusqu’à trois filtres. Sélectionnez « Aucune » pour retirer un filtre.
+                    </p>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">{{ form.filtre_1_colonne.label_tag }}{{ form.filtre_1_colonne }}{% for erreur in form.filtre_1_colonne.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                        <div class="col-md-4">{{ form.filtre_1_operateur.label_tag }}{{ form.filtre_1_operateur }}{% for erreur in form.filtre_1_operateur.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                        <div class="col-md-4">{{ form.filtre_1_valeur.label_tag }}{{ form.filtre_1_valeur }}{% for erreur in form.filtre_1_valeur.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">{{ form.filtre_2_colonne.label_tag }}{{ form.filtre_2_colonne }}{% for erreur in form.filtre_2_colonne.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                        <div class="col-md-4">{{ form.filtre_2_operateur.label_tag }}{{ form.filtre_2_operateur }}{% for erreur in form.filtre_2_operateur.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                        <div class="col-md-4">{{ form.filtre_2_valeur.label_tag }}{{ form.filtre_2_valeur }}{% for erreur in form.filtre_2_valeur.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">{{ form.filtre_3_colonne.label_tag }}{{ form.filtre_3_colonne }}{% for erreur in form.filtre_3_colonne.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                        <div class="col-md-4">{{ form.filtre_3_operateur.label_tag }}{{ form.filtre_3_operateur }}{% for erreur in form.filtre_3_operateur.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                        <div class="col-md-4">{{ form.filtre_3_valeur.label_tag }}{{ form.filtre_3_valeur }}{% for erreur in form.filtre_3_valeur.errors %}<div class="text-danger small mt-1">{{ erreur }}</div>{% endfor %}</div>
+                    </div>
+                </section>
+
+
+                <section class="editor-section">
+                    <label class="form-label fw-semibold" for="{{ form.justification.id_for_label }}">
+                        {{ form.justification.label }}
+                    </label>
+                    {{ form.justification }}
+                </section>
+
+            </div>
+
+
+            <div class="save-bar d-flex flex-wrap justify-content-end gap-2 p-3">
+                <a
+                    href="{% url 'ai_assistant:espace_assiste' tableau_bord.pk %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Annuler
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    Enregistrer la suggestion
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

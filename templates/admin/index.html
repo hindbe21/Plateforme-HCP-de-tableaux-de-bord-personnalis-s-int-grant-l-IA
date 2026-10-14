@@ -1,0 +1,199 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static log %}
+
+{% block bodyclass %}
+    {{ block.super }} dashboard hcp-admin-dashboard-page
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+
+<div class="hcp-admin-shell">
+
+    <header class="hcp-admin-heading">
+
+        <div>
+            <p class="hcp-admin-kicker">Administration</p>
+            <h1>Gestion de la plateforme</h1>
+            <p>
+                Gérez les utilisateurs, les jeux de données,
+                les tableaux de bord et les paramètres depuis un espace centralisé.
+            </p>
+        </div>
+
+        <a href="{% url 'home' %}" class="hcp-admin-heading-link">
+            Retour à la plateforme
+        </a>
+
+    </header>
+
+
+    <div class="hcp-admin-overview">
+
+        <article>
+            <span class="hcp-admin-overview-icon">01</span>
+            <div>
+                <strong>Utilisateurs et accès</strong>
+                <small>Comptes, rôles, groupes et permissions.</small>
+            </div>
+        </article>
+
+        <article>
+            <span class="hcp-admin-overview-icon">02</span>
+            <div>
+                <strong>Jeux de données</strong>
+                <small>Fichiers, versions et diagnostics.</small>
+            </div>
+        </article>
+
+        <article>
+            <span class="hcp-admin-overview-icon">03</span>
+            <div>
+                <strong>Tableaux de bord</strong>
+                <small>Visualisations, widgets et filtres.</small>
+            </div>
+        </article>
+
+    </div>
+
+
+    <div class="hcp-admin-layout">
+
+        <main>
+
+            {% if app_list %}
+
+                {% for app in app_list %}
+
+                    <section class="hcp-admin-section module">
+
+                        <div class="hcp-admin-section-header">
+
+                            <div>
+                                <h2>{{ app.name }}</h2>
+                                <p>Gérez les éléments enregistrés dans cette application.</p>
+                            </div>
+
+                            <span>{{ forloop.counter|stringformat:"02d" }}</span>
+
+                        </div>
+
+
+                        <div class="hcp-admin-model-grid">
+
+                            {% for model in app.models %}
+
+                                <article class="hcp-admin-model-card">
+
+                                    <div>
+
+                                        <h3>
+                                            {% if model.admin_url %}
+                                                <a href="{{ model.admin_url }}">
+                                                    {{ model.name }}
+                                                </a>
+                                            {% else %}
+                                                {{ model.name }}
+                                            {% endif %}
+                                        </h3>
+
+                                        <p>
+                                            Consulter, ajouter ou modifier les enregistrements.
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="hcp-admin-model-actions">
+
+                                        {% if model.admin_url %}
+                                            <a href="{{ model.admin_url }}" class="hcp-admin-manage-link">
+                                                Gérer
+                                            </a>
+                                        {% endif %}
+
+                                        {% if model.add_url %}
+                                            <a href="{{ model.add_url }}" class="hcp-admin-add-link">
+                                                Ajouter
+                                            </a>
+                                        {% endif %}
+
+                                    </div>
+
+                                </article>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+                {% endfor %}
+
+            {% else %}
+
+                <section class="hcp-admin-section">
+                    <h2>Aucune application disponible</h2>
+                    <p>Votre compte ne dispose actuellement d’aucune permission administrative.</p>
+                </section>
+
+            {% endif %}
+
+        </main>
+
+
+        <aside class="hcp-admin-recent">
+
+            <section class="hcp-admin-section">
+
+                <div class="hcp-admin-section-header">
+                    <div>
+                        <h2>Activité récente</h2>
+                        <p>Dernières opérations administratives.</p>
+                    </div>
+                </div>
+
+                {% get_admin_log 8 as admin_log for_user user %}
+
+                <ul class="actionlist">
+
+                    {% for entry in admin_log %}
+
+                        <li class="{% if entry.is_addition %}addlink{% elif entry.is_change %}changelink{% else %}deletelink{% endif %}">
+
+                            {% if entry.is_deletion or not entry.get_admin_url %}
+                                {{ entry.object_repr }}
+                            {% else %}
+                                <a href="{{ entry.get_admin_url }}">
+                                    {{ entry.object_repr }}
+                                </a>
+                            {% endif %}
+
+                            <br>
+                            <span class="mini quiet">
+                                {{ entry.content_type.name|capfirst }}
+                            </span>
+
+                        </li>
+
+                    {% empty %}
+
+                        <li class="quiet">
+                            Aucune opération récente.
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}

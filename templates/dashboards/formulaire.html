@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if mode_modification %}
+        Modifier le tableau de bord
+    {% else %}
+        Créer un tableau de bord
+    {% endif %}
+    | Plateforme HCP
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/dashboard_form.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-form-page">
+
+    <a
+        href="{% url 'dashboards:liste' %}"
+        class="dashboard-form-back"
+    >
+        <i class="bi bi-arrow-left"></i>
+        Retour aux tableaux de bord
+    </a>
+
+
+    <header class="dashboard-form-header">
+
+        <div>
+
+            <div class="dashboard-form-kicker">
+                Espace de visualisation
+            </div>
+
+            <h1 class="dashboard-form-title">
+                {% if mode_modification %}
+                    Modifier le tableau de bord
+                {% else %}
+                    Créer un tableau de bord
+                {% endif %}
+            </h1>
+
+            <p class="dashboard-form-subtitle">
+                {% if mode_modification %}
+                    Mettez à jour le titre, la description ou
+                    le jeu de données associé.
+                {% else %}
+                    Choisissez un jeu de données puis décrivez
+                    l’espace de visualisation à construire.
+                {% endif %}
+            </p>
+
+        </div>
+
+
+        <div class="dashboard-form-step">
+
+            <span class="dashboard-form-step-number">
+                1
+            </span>
+
+            <span>
+                Informations générales
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <div class="row g-4 align-items-start">
+
+        <div class="col-xl-8">
+
+            <section class="dashboard-form-card">
+
+                <div class="dashboard-form-card-heading">
+
+                    <span class="dashboard-form-card-icon">
+                        <i class="bi bi-grid-1x2"></i>
+                    </span>
+
+                    <div>
+                        <h2>
+                            Configuration du tableau de bord
+                        </h2>
+
+                        <p>
+                            Ces informations pourront être
+                            modifiées ultérieurement.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                {% if aucun_jeu_nettoye %}
+
+                    <div class="alert alert-warning d-flex gap-3">
+
+                        <i class="bi bi-exclamation-triangle fs-5"></i>
+
+                        <div>
+                            <div class="fw-bold mb-1">
+                                Aucun jeu de données nettoyé disponible
+                            </div>
+
+                            <div>
+                                Importez ou nettoyez un jeu de données
+                                avant de créer un tableau de bord.
+                            </div>
+
+                            <a
+                                href="{% url 'datasets:liste' %}"
+                                class="btn btn-sm btn-hcp-orange mt-3"
+                            >
+                                Ouvrir les jeux de données
+                            </a>
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                <form method="post" novalidate>
+
+                    {% csrf_token %}
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="{{ form.titre.id_for_label }}"
+                            class="form-label"
+                        >
+                            Titre du tableau de bord
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.titre }}
+
+                        <div class="form-text">
+                            Exemple : Analyse démographique 2026
+                        </div>
+
+                        {% for error in form.titre.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="{{ form.description.id_for_label }}"
+                            class="form-label"
+                        >
+                            Description
+                        </label>
+
+                        {{ form.description }}
+
+                        <div class="form-text">
+                            Résumez l’objectif du tableau de bord
+                            et les informations qu’il doit présenter.
+                        </div>
+
+                        {% for error in form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="{{ form.jeu_donnees.id_for_label }}"
+                            class="form-label"
+                        >
+                            Jeu de données
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        {{ form.jeu_donnees }}
+
+                        <div class="form-text">
+                            Seuls les jeux de données accessibles
+                            et prêts à être exploités sont proposés.
+                        </div>
+
+                        {% for error in form.jeu_donnees.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+
+                    <div class="dashboard-form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-hcp-primary"
+                            {% if aucun_jeu_nettoye %}
+                                disabled
+                            {% endif %}
+                        >
+                            <i
+                                class="bi
+                                {% if mode_modification %}
+                                    bi-check2
+                                {% else %}
+                                    bi-plus-lg
+                                {% endif %}"
+                            ></i>
+
+                            {% if mode_modification %}
+                                Enregistrer les modifications
+                            {% else %}
+                                Créer le tableau de bord
+                            {% endif %}
+                        </button>
+
+
+                        <a
+                            href="{% url 'dashboards:liste' %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Annuler
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </div>
+
+
+        <aside class="col-xl-4">
+
+            <section class="dashboard-form-help">
+
+                <div class="dashboard-form-help-icon">
+                    <i class="bi bi-lightbulb"></i>
+                </div>
+
+                <h2>
+                    Bien préparer votre tableau de bord
+                </h2>
+
+                <div class="dashboard-form-help-item">
+
+                    <span>1</span>
+
+                    <div>
+                        <strong>
+                            Choisissez une source fiable
+                        </strong>
+
+                        <p>
+                            Utilisez de préférence une version
+                            nettoyée et validée.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-form-help-item">
+
+                    <span>2</span>
+
+                    <div>
+                        <strong>
+                            Donnez un titre explicite
+                        </strong>
+
+                        <p>
+                            Le titre doit indiquer clairement
+                            le sujet ou la population étudiée.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-form-help-item">
+
+                    <span>3</span>
+
+                    <div>
+                        <strong>
+                            Ajoutez ensuite les widgets
+                        </strong>
+
+                        <p>
+                            Après la création, utilisez le mode
+                            manuel ou les suggestions par IA.
+                        </p>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}

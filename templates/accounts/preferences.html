@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Paramètres du compte | Plateforme HCP{% endblock %}
+
+{% block content %}
+
+<div class="hcp-page">
+
+    <a href="{% url 'profil' %}" class="text-decoration-none fw-semibold">
+        ← Retour au profil
+    </a>
+
+    <header class="mt-4 mb-4">
+        <div class="page-kicker">Compte utilisateur</div>
+        <h1 class="page-title mb-2">Paramètres du compte</h1>
+        <p class="page-subtitle mb-0">
+            Personnalisez l’interface et les notifications sans modifier
+            votre nom, votre adresse email ou votre rôle.
+        </p>
+    </header>
+
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+
+            <section class="hcp-shell p-4 p-lg-5">
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="{{ form.notifications.id_for_label }}">
+                                {{ form.notifications.label }}
+                            </label>
+                            {{ form.notifications }}
+                            {% for error in form.notifications.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">
+                                Choisissez le niveau d’information affiché dans la plateforme.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="{{ form.theme.id_for_label }}">
+                                {{ form.theme.label }}
+                            </label>
+                            {{ form.theme }}
+                            {% for error in form.theme.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="{{ form.langue.id_for_label }}">
+                                {{ form.langue.label }}
+                            </label>
+                            {{ form.langue }}
+                            {% for error in form.langue.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="{{ form.fuseau_horaire.id_for_label }}">
+                                {{ form.fuseau_horaire.label }}
+                            </label>
+                            {{ form.fuseau_horaire }}
+                            {% for error in form.fuseau_horaire.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-12">
+                            <div class="hcp-soft-panel p-3">
+                                <div class="form-check">
+                                    {{ form.affichage_compact }}
+                                    <label class="form-check-label fw-semibold" for="{{ form.affichage_compact.id_for_label }}">
+                                        {{ form.affichage_compact.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a href="{% url 'profil' %}" class="btn btn-outline-secondary">
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-dashboard-primary">
+                            <i class="bi bi-check2-circle me-2"></i>
+                            Enregistrer les paramètres
+                        </button>
+                    </div>
+
+                </form>
+
+            </section>
+
+        </div>
+
+        <div class="col-lg-4">
+            <aside class="hcp-shell p-4 h-100">
+                <span class="hcp-round-icon mb-3">
+                    <i class="bi bi-info-circle"></i>
+                </span>
+                <h2 class="h5 text-hcp-burgundy fw-bold">
+                    Une page distincte
+                </h2>
+                <p class="text-muted small">
+                    Cette page concerne uniquement les préférences de la plateforme.
+                    Les informations personnelles restent disponibles dans
+                    « Modifier le profil » et la sécurité dans
+                    « Changer le mot de passe ».
+                </p>
+                <div class="alert alert-light border small mb-0">
+                    Les préférences sont enregistrées dans votre session sécurisée.
+                </div>
+            </aside>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

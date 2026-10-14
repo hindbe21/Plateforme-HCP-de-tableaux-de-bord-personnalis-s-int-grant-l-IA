@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ titre_page }} | Plateforme HCP{% endblock %}
+{% block head %}
+{{ block.super }}
+<style>
+.widget-create-page{width:min(1500px,calc(100vw - 2rem));margin-left:50%;transform:translateX(-50%);--green:#74133f;--border:#dfe4ea;--muted:#667085;}
+.widget-create-page .workspace{border:1px solid var(--border);border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 14px 38px rgba(16,24,40,.07)}
+.widget-create-page .header{padding:1.3rem 1.5rem;border-bottom:1px solid var(--border)}
+.widget-create-page .tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)}
+.widget-create-page .tab-button{min-height:54px;border:0;border-right:1px solid var(--border);background:#fff;color:#475467;font-weight:700}
+.widget-create-page .tab-button:last-child{border-right:0}.widget-create-page .tab-button.active{background:rgba(116,19,63,.075);color:#570b2d;box-shadow:inset 0 -3px 0 var(--green)}
+.widget-create-page .body{padding:1rem 1.2rem 1.4rem;background:#f7f9fb}.widget-create-page .panel,.widget-create-page .suggestion-card{border:1px solid var(--border);border-radius:14px;background:#fff}
+.widget-create-page .suggestion-card{height:100%;display:flex;flex-direction:column;padding:1rem}.widget-create-page .help{color:var(--muted)}
+.widget-create-page .profile-table,.widget-create-page .suggestion-meta{font-size:.84rem}.widget-create-page .chat-panel{position:sticky;top:1rem}.widget-create-page .chat-messages{max-height:430px;overflow:auto}
+.widget-create-page .chat-message{margin-bottom:.7rem;border-radius:10px;background:#f4f6f8;padding:.75rem}.widget-create-page .chat-user{margin-left:1rem;background:rgba(116,19,63,.075)}
+.widget-create-page .pertinence{display:inline-flex;border-radius:999px;padding:.28rem .55rem;font-size:.72rem;font-weight:700}.widget-create-page .pertinence-FORTEMENT_RECOMMANDE{background:#e7f7ef;color:#116149}.widget-create-page .pertinence-RECOMMANDE{background:#eef4ff;color:#284d86}.widget-create-page .pertinence-OPTIONNEL{background:#f4f4f5;color:#52525b}
+@media(max-width:1199.98px){.widget-create-page .chat-panel{position:static}}@media(max-width:767.98px){.widget-create-page{width:calc(100vw - 1rem)}.widget-create-page .tabs{grid-template-columns:1fr}.widget-create-page .tab-button{border-right:0;border-bottom:1px solid var(--border)}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="widget-create-page"><div class="workspace">
+<header class="header">
+<a href="{% url 'dashboards:detail' tableau_bord.pk %}" class="text-decoration-none">← Retour au tableau de bord</a>
+<h1 class="h2 mt-3 mb-1">{{ titre_page }}</h1>
+<p class="help mb-0">Tableau de bord : <strong>{{ tableau_bord.titre }}</strong> · Jeu de données : <strong>{{ tableau_bord.jeu_donnees.nom }}</strong></p>
+</header>
+{% if not form.instance.pk %}
+<div class="tabs" role="tablist">
+<button class="tab-button {% if mode_creation != 'ia' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#mode-manuel" type="button">Création manuelle</button>
+<button class="tab-button {% if mode_creation == 'ia' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#mode-ia" type="button">Suggestions par IA</button>
+</div>
+{% endif %}
+<main class="body"><div class="tab-content">
+<section class="tab-pane fade {% if mode_creation != 'ia' or form.instance.pk %}show active{% endif %}" id="mode-manuel">{% include "dashboards/partials/_widget_manuel.html" %}</section>
+{% if not form.instance.pk %}<section class="tab-pane fade {% if mode_creation == 'ia' %}show active{% endif %}" id="mode-ia">{% include "ai_assistant/partials/_suggestions_widgets.html" %}</section>{% endif %}
+</div></main>
+</div></div>
+{% endblock %}
+{% block scripts %}{{ block.super }}
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+ document.querySelector('[data-bs-target="#mode-ia"]')?.addEventListener("shown.bs.tab",()=>history.replaceState(null,"","?mode=ia"));
+ document.querySelector('[data-bs-target="#mode-manuel"]')?.addEventListener("shown.bs.tab",()=>history.replaceState(null,"","?mode=manuel"));
+ const type=document.getElementById("id_type_widget"),agg=document.getElementById("id_agregation");
+ const b=id=>document.getElementById(id), show=(id,v)=>{if(b(id))b(id).style.display=v?"":"none"};
+ function refresh(){if(!type)return;const t=type.value;const groups=new Set(["BARRES","BARRES_HORIZONTALES","CLASSEMENT","CAMEMBERT","ANNEAU","COURBE","AIRES"]);const withSeries=new Set(["BARRES","BARRES_HORIZONTALES","COURBE","AIRES","TABLEAU_CROISE"]);
+ show("field-colonne_categorie",t!=="INDICATEUR");show("field-colonne_serie",withSeries.has(t));show("field-colonne_mesure",!["HISTOGRAMME","STATISTIQUES_DESCRIPTIVES"].includes(t));show("field-agregation",!["HISTOGRAMME","NUAGE_POINTS","TABLEAU","STATISTIQUES_DESCRIPTIVES"].includes(t));show("field-ordre_tri",groups.has(t));show("field-nombre_classes",t==="HISTOGRAMME");show("field-limite_resultats",!["INDICATEUR","HISTOGRAMME","STATISTIQUES_DESCRIPTIVES"].includes(t));show("field-inclure_manquantes",groups.has(t)||t==="TABLEAU_CROISE");if(agg?.value==="NOMBRE"&&(groups.has(t)||t==="INDICATEUR"))show("field-colonne_mesure",false);}
+ type?.addEventListener("change",refresh);agg?.addEventListener("change",refresh);refresh();
+ const boxes=document.querySelectorAll("[data-suggestion-checkbox]"),btn=b("create-selection"),counter=b("selection-count");function update(){const n=document.querySelectorAll("[data-suggestion-checkbox]:checked").length;if(counter)counter.textContent=n;if(btn)btn.disabled=n===0;}boxes.forEach(x=>x.addEventListener("change",update));update();
+});
+</script>{% endblock %}
